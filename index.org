@@ -20,5 +20,535 @@
 
 
 * Project ideas
-
 ** Build learning guide for infiltrate convention.
+*** Introduction and reason:
+
+    This is a learning preparedness series for my journey to infiltrate2018 for 
+    "master track: kernel exploitation"
+
+    Here I will break down any resources and clarify my understanding in my own
+    words to ensure that I document my understanding and that I am not wasting time
+    and money.
+
+    I want to build practical examples that I can read and reference at a later
+    date.
+
+    I want to keep this up to date.. 
+
+    I've broken down the data from https://infiltratecon.com/schedule/ into the
+    days that information is being presented, I want to do research into each of
+    the topics and make this as fruitful as possible.
+
+*** Day 0 (Background information)
+**** How the stack works
+
+      Draw from:
+      http://badbytes.io/2017/02/15/exploit-dev-0x01-64-bit-linux-stack-buffer-overflow/
+    
+**** Understanding a kernel stack trace.
+
+      When you get a backtrace you may see something similar to the below:
+
+     #+BEGIN_EXAMPLE
+     [  509.617661] BUG: unable to handle kernel NULL pointer dereference at 0000000000000028
+
+                     [<ffffffffc0599a80>] drbg_kcapi_reset+0x160/0x220 [drbg] 
+     [  509.642461]  [<ffffffff812eb867>] rngapi_reset+0x57/0x80
+     [  509.642461]  [<ffffffffc05c400f>] rng_setkey+0xf/0x20 [algif_rng]
+     [  509.642461]  [<ffffffff812ec131>] alg_setsockopt+0x101/0x140
+     [  509.642461]  [<ffffffff8156b3a0>] SyS_setsockopt+0x80/0xf0
+     [  509.642461]  [<ffffffff816b4fc9>] system_call_fastpath+0x16/0x1b
+   
+   
+     [  509.642461] RAX: 0000000000000010 RBX: ffff8800b37a3c00 RCX: 000000000000000a
+     [  509.642461] RAX: 0000000000000010 RBX: ffff8800b37a3c00 RCX: 000000000000000a
+     [  509.642461] RDX: 000000000000000a RSI: ffffffffc059b6f6 RDI: ffffffffc059dae2
+     [  509.642461] RBP: ffff880137847ea8 R08: 0000000000000036 R09: 0000000000000000
+     [  509.642461] R10: ffff88013fc19ba0 R11: ffffea00022ac900 R12: ffffffffc059dae2
+     [  509.642461] R13: 000000000000000b R14: ffffffffc059b6f6 R15: 000000000000000a
+     #+END_EXAMPLE                
+
+     Kernel stack traces read "bottom up", the most recently executing function is
+     at the top, followed by the function that called that, followed by the function
+     that called and so on.
+
+     To break down a single line:
+
+     #+BEGIN_EXAMPLE
+     Each line explained:
+
+                     [<ffffffffc0599a80>] drbg_kcapi_reset+0x160/0x220 [drbg] 
+                      ^1                  ^2               ^3    ^4    ^5
+     #+END_EXAMPLE
+
+     Below, each element is explained:
+
+     1) Physical location of memory where this is being run, should be kernel address space.
+     2) Name of the function that the kernel "thinks" its in.
+     3) Offset from the start of the function that the 'unwinder' could match.
+     4) Length of the function that the 'unwinder' could match to.
+     5) Optional, kernel module name.
+   
+     From the above we can see that the kernel paniced while in drbg_kcapi_reset at
+     offset 0x160 through the function..  We're going to show a method in this case
+     to confirm that the stack trace is working how we assume it is.
+
+     Examples within are in the intel assembly format because that is what I feel
+     more comfortable with.
+
+     Lets start by using objdump on the module to see the assembly instruction that
+     the kernel paniced on:
+   
+     #+BEGIN_EXAMPLE
+   
+        $ objdump -dSLR -M intel drbg.ko |grep drbg_kcapi_reset | grep -A 25 
+   
+        static int drbg_kcapi_reset(struct crypto_rng *tfm, u8 *seed, unsigned int slen)
+   
+        0000000000002920 
+   
+         2a5d:       41 83 ff 0b             cmp    r15d,0xb
+         2a61:       75 dd                   jne    2a40 <drbg_kcapi_reset+0x120>
+         2a63:       45 30 ff                xor    r15b,r15b
+         2a66:       8b 45 98                mov    eax,DWORD PTR [rbp-0x68]
+         2a69:       85 c0                   test   eax,eax
+         2a6b:       0f 85 97 00 00 00       jne    2b08 <drbg_kcapi_reset+0x1e8>
+         2a71:       48 83 7d a0 00          cmp    QWORD PTR [rbp-0x60],0x0
+         2a76:       0f 84 a4 00 00 00       je     2b20 <drbg_kcapi_reset+0x200>
+         2a7c:       48 8b 45 a0             mov    rax,QWORD PTR [rbp-0x60]
+         2a80:       4c 8b 60 18             mov    r12,QWORD PTR [rax+0x18] <<== HERE
+         2a84:       4d 85 e4                test   r12,r12                  
+         2a87:       74 22                   je     2aab <drbg_kcapi_reset+0x18b>
+         2a89:       49 83 3c 24 00          cmp    QWORD PTR [r12],0x0
+         2a8e:       74 1b                   je     2aab <drbg_kcapi_reset+0x18b>
+         2a90:       4c 8b 75 a8             mov    r14,QWORD PTR [rbp-0x58]
+   
+     #+END_EXAMPLE
+   
+     So to find the instruction it bugged on: 
+   
+     #+BEGIN_EXAMPLE
+       0x2920 (function offset) 
+     + 0x0160 (instruction offset)
+     ========
+       0x2a80
+     ========
+     #+END_EXAMPLE
+   
+     We can see that this bugged on mov r12,QWORD PTR[rax+0x18]. This kind of
+     instruction is usually used when looking up elements of a struct.
+   
+     We do notice however that the backtrace mentions 0x28, but the assembly
+     instruction mentions 0x10, what gives.. well thats because the RAX 
+     register contains 0x10 (See stack dump above).  RAX + 0x18, added together 
+     giveth 0x28.
+   
+     Timesaver:
+   
+     If you ever need to do hex math you can use python 
+   
+     #+BEGIN_EXAMPLE
+     python
+     >> hex (0x2920 + 0x160)
+     0x2a80
+     >> hex (0x18 + 0x1000)
+     0x28
+     #+END_EXAMPLE
+   
+     Fortunately, we have the source code, so we can use the previous in
+     confirm what line was being bugged.
+
+     The addr2line or "eu-addr2line" tool is able to translate the function+offset
+     into a line number.   You may need to use your kernels "debug" modules or
+     "debuginfo" modules to correctly determine the offset information as not all
+     modules will have sufficient debugging symbols present to determine which line
+     is being executed.  
+   
+     Shown below is the RHEL7 drbg.ko module from kernel-debuginfo.  It is important
+     to run this against the matching kernel release or the line values will not
+     match correctly.
+   
+   
+     #+BEGIN_EXAMPLE
+     [wmealing@linux Downloads]$  eu-addr2line -f -e  ./usr/lib/debug/lib/modules/3.10.0-691.el7.x86_64/kernel/crypto/drbg.ko.debug 
+     drbg_kcapi_reset+0x160
+     drbg_kcapi_reset
+     crypto/drbg.c:1741
+   
+     #+END_EXAMPLE
+   
+     We get a little closer, so lets take a look at that line:
+   
+     #+BEGIN_EXAMPLE
+        1722 static int drbg_kcapi_reset(struct crypto_rng *tfm, u8 *seed, unsigned int slen)
+        1723 {
+        1724         struct drbg_state *drbg = crypto_rng_ctx(tfm);
+        1725         struct crypto_tfm *tfm_base = crypto_rng_tfm(tfm);
+        1726         bool pr = false;
+        1727         struct drbg_string seed_string;
+        1728         int coreref = 0;
+        1729 
+        1730         drbg_uninstantiate(drbg);
+        1731         drbg_convert_tfm_core(crypto_tfm_alg_driver_name(tfm_base), &coreref,
+        1732                               &pr);
+        1733         if (0 < slen) {
+        1734                 drbg_string_fill(&seed_string, seed, slen);
+        1735                 return drbg_instantiate(drbg, &seed_string, coreref, pr);
+        1736         } else {
+        1737                 struct drbg_gen *data = (struct drbg_gen *)seed;
+        1738                 /* allow invocation of API call with NULL, 0 */
+        1739                 if (!data)
+        1740                         return drbg_instantiate(drbg, NULL, coreref, pr);
+        1741                 drbg_set_testdata(drbg, data->test_data); <-- HERE
+        1742                 /* linked list variable is now local to allow modification */
+        1743                 drbg_string_fill(&seed_string, data->addtl->buf,
+        1744                                  data->addtl->len);
+        1745                 return drbg_instantiate(drbg, &seed_string, coreref, pr);
+        1746         }
+        1747 }
+     #+END_EXAMPLE
+      
+     Because we can see that its trying to find the offset of a specific item (with
+     rax+0x18 in the instruction) we can take a pretty good guess that its looking
+     at data->test_data.
+   
+     The drbg_set_testdata function is an "inline" function.  This means that the
+     kernel function will not include the usual "call" assembly instruction to
+     execute the function, but instead will put the code that the function would
+     execute directly in-place.
+   
+     Because of this, We can match the first instruction of the drbg_set_testdata
+     function with the next instruction of the dissasembly.
+   
+     This first instruction is a testing that the first arguent is "not null", this
+     is acheived in assembly with the "test" instruction.  
+   
+     #+NAME: Test instruction.
+     #+BEGIN_EXAMPLE
+     test r12 r12
+     #+END_EXAMPLE
+
+     We can backtrack to the previous instruction and determine that the result was
+     stored in R12 to see if we are likely in the correc tlocation
+   
+     #+NAME: pointer-dereference instruction.
+     #+BEGIN_EXAMPLE
+      2a80:       4c 8b 60 18             mov    r12,QWORD PTR [rax+0x18]
+     #+END_EXAMPLE
+
+     References:
+      https://stackoverflow.com/questions/6151538/addr2line-on-kernel-module
+
+**** Userland vs kernel land.
+***** What is userspace:
+
+    Userspace is an area of memory reserved for applications that run on behalf
+    of users to execute.  It has a contiguous section of memory of a subsection of
+    the full memory available
+
+    mention pte... abstraction.
+    virtual address space uses page tables to look things up.
+
+    - syscalls explain context
+    - ioctls explain context
+
+***** What is a syscall?
+
+      A system call, sometimes referred to as a kernel call, is a request in a
+      Unix-like operating system made via a software interrupt by an active 
+      process for a service performed by the kernel.
+
+      Link to any POSIX spec for syscalls or doc on syscalls ?
+
+***** What is an ioctl ?
+
+      An ioctl (an abbreviation of input/output control) is a system call for 
+      device-specific input/output operations and other operations which cannot be
+      expressed by regular system calls.  Usually these control hardware.
+
+      Link to any discussion on deprecation of ioctls to other mechanisms.
+
+      #+BEGIN_EXAMPLE
+
+      #include <fcntl.h>      /* open */ 
+      #include <unistd.h>     /* exit */
+      #include <sys/ioctl.h>  /* ioctl */
+
+      #define DEVICE_FILE_NAME "/dev/something"
+      #define IOCTL_GET_MSG 1
+
+      /* Main - Call the ioctl functions */
+      void main() {
+           int fd;
+           int ret_val;
+           char *msg = "Message passed by ioctl\n";
+
+           fd = open(DEVICE_FILE_NAME, 0);
+           if (file_desc < 0) {
+
+               printf ("Can't open device file: %s\n",  DEVICE_FILE_NAME);
+
+               ret_val = ioctl(fd, IOCTL_GET_MSG, message);
+
+               if (ret_val < 0)
+                  printf("ioctl_get_msgfailed:%d\n",ret_val);
+
+           }
+      }
+     
+
+#+END_EXAMPLE
+
+The expectation is that the hardware kernel would relay the expectation that
+userspace has a request to fulfil and respond with the change or an error
+message regarding why the request could not be completed.
+
+***** What is sysfs/configfs ?
+
+Link to source code of sysfs generics.
+
+***** What is /dev/
+
+***** What is Netlink messages ?
+
+     - Limited subset of commands.
+     - Examples provided by me will be done in kernel modules loaded at run time.
+
+     - Find link to pedantism format required, but if you're doing evil best to
+       just do it in whatever you're comfortable with.
+
+     Netlink flaw:
+     https://bugzilla.redhat.com/show_bug.cgi?id=CVE-2009-1185 
+
+***** What is kernel space
+
+   - No floating point work done in kernel, those registers get smashed.
+   - no stdlibs from glibc.
+   - can't use userspace libraries, code, read/write et
+
+    Full address space of the system.  Not directly accessible from userspace.
+    Syscalls, ioctls, sysfs have indirect access to the the kernel through through
+    their proxy style mechanism.
+
+    No "protection" provided from kernel->kernel access, can't limit execution of
+    kernel code.
+
+    Kernel proxies all memory access of applications via page tables, 
+
+    Linux kernel process memory map
+    https://www.kernel.org/doc/Documentation/x86/x86_64/mm.txt
+
+** Day +1 (Preparation)
+
+*** Setting up a kernel debugging environment
+****  My document on blogs.redhat.com 
+     - https://gist.github.com/wmealing/24db20d60995a57ab5b8fc550378e54e 
+     - Reproduca , pull down and put on github.
+      - Don't forget to show murray this tool.
+       
+*** Kernel internals
+**** Memory models and the address space
+*** Flaw types
+**** Infoleak
+     Reveals offsets and values of shit on stack.
+**** Privesc
+     Changing the running priv of the current program.
+
+**** X86 calling conventions.
+**** Key structures in privesc
+***** Task struct
+***** Thread info struct
+
+
+    From a process whats it look like
+
+
+*** Exploit stages
+**** Was reading a book about the 4 stages of exploitation, cover that here.
+
+***** Stage 1: Setup/Initialization
+***** Stage 2: _______
+***** Stage 3: Exploitation
+***** Stage 4: Recovery / Cleanup ?
+
+
+*** Common C Exploit types
+     * Signedness issues
+       https://en.wikibooks.org/wiki/X86_Assembly/Control_Flow#Jump_if_Above_.28unsigned_comparison.29
+     * Integer overflow
+     * Type promotion in comparison.
+     * Overflowing into adjacent objects
+     * Off-by-[one/X]
+     * Use after free
+     * Stack corruption
+     * Heap Corruption
+     * Information leak
+       Used to generate offsets to find task_struct and set uid / gid to 0.
+     * OOB accesss ?
+
+*** Kernel Mitigations
+ 
+    Describe each one of the kernel mitigatations.
+
+**** Stack guard page.
+
+**** SMEP
+
+      Bypassing SMEP (Supervisor Mode Execution Protection)
+      :- http://vulnfactory.org/blog/2011/06/05/smep-what-is-it-and-how-to-beat-it-on-linux/
+
+**** SMAP
+      - https://github.com/wmealing/playground/tree/master/kernel-module-disable-smep
+
+        So, weird things, i think it gets re-enabled when copy_to_user happens
+        (frequently), so maybe i need to work this into some kind of shellcode
+        that can be injected during the payload.  
+
+        The other option is that i need to continually run this by hooking it
+        into the re-enable code to ensure that it never gets disabled
+
+        LWN made a page on it https://lwn.net/Articles/517475/
+
+**** STACKSLA.... (grsec) 
+**** Struct alignment.
+
+**** Hardening list ?
+
+**** Seccomp sandboxing
+**** address_limit checks
+
+     Vitaly talks about it here https://www.youtube.com/watch?v=UFakJa3t8Ls&t=7s
+    
+     get_fs() and set_fs() set the thread_info's addr_limit which is checked
+     when copying to and from userspace/kernel space, by tricking this out, 
+     any application can have arbitrary read/write of kernel address space.
+
+** Day +2 (Exploit toolchain)
+*** Abusing arbitrary read/write
+
+    Show how infoleak + write can end up with a user discovering the location
+    of the task struct (then creds) then setting effective uid and gid.
+
+***** TODO Create github example module that allows for 1 byte read  and  write.
+
+*** Abusing function pointers
+
+    Show how abusing arbitary writes and then calling a function pointer
+    to controlled code can control EIP.
+
+    Mitigations will prevent this from happening.
+
+***** TODO create github example of module that allows for arb read/write and fn abuse.
+
+*** Controlled memory 'corruption'
+
+    Sometimes only writes are not controlled, but corrupting,
+    how do we take advantage of that
+
+**** TODO create example of writing 'something' to a location, then spinning on
+    it... slab trashing ?
+
+*** Simple Race conditions
+
+    How do we abuse race conditions (show dirty cow ?)
+** Day +3
+*** Logical and hardware related bugs
+*** Kernel and hardware protection
+
+    - Reference capcom simple example, and make it.
+    - Show how to prepare example with protections disabled.
+    - smep, smap, nx, what happens when each of them are triggered.
+
+*** Bypassing protections
+
+    -> Show shellcode how to disable CR3.
+
+
+*** The future of kernel vulnerabilties
+    - Only logic ? Damn kernel hardening efforts ? 
+
+** Day +4 (Stuff that Doesn't fit )
+*** Rootkits
+    https://github.com/f0rb1dd3n/
+**** Tricks:
+***** Finding Offset in structs.
+   
+      In crash,(and maybe GDB, stolen from   https://youtu.be/UFakJa3t8Ls?t=2995)
+   
+      #+BEGIN_EXAMPLE
+        x/x &((struct somestruct *)0x1000)->element
+        0x1000 (Plus offset)
+      #+END_EXAMPLE
+
+*** Basic commit creds example:
+ 
+    Privilege escalation
+     : TODO: basic example for commit_creds(prepare_kernel_cred)
+
+    Privilege escalation heuristics
+     : Dont know
+ 
+** References / to sort.
+
+  - android kernel exploitation playground
+   :-  https://github.com/Fuzion24/AndroidKernelExploitationPlayground
+
+  - Great link on linux kernel exploitation 
+   :-  https://github.com/xairy/linux-kernel-exploitation
+
+  * Vitaly's presentation on exploit generation stuff.
+   :- https://www.youtube.com/watch?v=UFakJa3t8Ls&t=7s
+
+  * - Simple exploit 
+    :- ret2usr - https://github.com/vnik5287/kernel_rop/
+    :- The advanced return-into-lib(c) exploits: PaX case study ( http://phrack.org/archives/issues/58/4.txt )
+
+  * - Introduction to ret2usr attacks
+   :- https://cyseclabs.com/slides/smep_bypass.pdf
+
+  * - Exploiting kernel heap and stack vulnerabilities
+   :- https://cyseclabs.com/blog/cve-2016-6187-heap-off-by-one-exploit
+
+  * - Reliable exploitation of use-after-free (UAF) vulnerabilities
+   :- http://perception-point.io/2016/01/14/analysis-and-exploitation-of-a-linux-kernel-vulnerability-cve-2016-0728/
+   :- https://cyseclabs.com/page?n=02012016
+
+  * Reliable UAF exploitation on SMP systems
+   :- dont know how to do this, other than userfault fd maybe ?
+
+  *  Why and Introduction to ret2dir attacks
+   :- https://www.blackhat.com/docs/eu-14/materials/eu-14-Kemerlis-Ret2dir-Deconstructing-Kernel-Isolation-wp.pdf
+   :- https://www.youtube.com/watch?v=kot-EQ9zf9k
+
+  * Introduction to ROP
+   :- https://www.trustwave.com/Resources/SpiderLabs-Blog/Linux-Kernel-ROP---Ropping-your-way-to---(Part-1)/
+   :- https://www.trustwave.com/Resources/SpiderLabs-Blog/Linux-Kernel-ROP---Ropping-your-way-to---(Part-2)/
+   :- 64-bit Linux Return-Oriented Programming ( http://crypto.stanford.edu/~blynn/rop/ )
+
+  * Bypassing SMEP (Supervisor Mode Execution Protection)
+   :- http://vulnfactory.org/blog/2011/06/05/smep-what-is-it-and-how-to-beat-it-on-linux/
+
+  * IDT (Interrupt Descriptor Table) overwrites
+   :- Is this still a thing ? http://phrack.org/issues/59/4.html
+
+
+ (TO ADD/SORT)
+
+ Linux Kernel Heap Tampering Detection ( http://phrack.org/archives/issues/66/15.txt )
+ Automatic Bug-finding Techniques for Linux Kernel ( http://www.fi.muni.cz/~xslaby/sklad/teze.pdf )
+ Vulnerability Extrapolation: Assisted Discovery of Vulnerabilities Using Machine Learning ( https://www.usenix.org/legacy/events/woot11/tech/final_files/Yamaguchi.pdf )
+ Offset2lib: bypassing full ASLR on 64bit Linux ( http://cybersecurity.upv.es/attacks/offset2lib/offset2lib.html )
+ Defeating Solar Designer’s Non-executable Stack Patch Summary ( http://insecure.org/sploits/non-executable.stack.problems.html )
+ Introduction to return oriented programming (ROP) ( http://codearcana.com/posts/2013/05/28/introduction-to-return-oriented-programming-rop.html )
+
+ - Need to know:
+   http://stackoverflow.com/questions/2535989/what-are-the-calling-conventions-for-unix-linux-system-calls-on-x86-64
+   Intel® 64 and IA-32 Architectures Software Developer Manuals ( http://www.intel.com/content/www/us/en/processors/architectures-software-developer-manuals.html )
+ 
+ – Module debugging
+  : loading a module in gdb ( https://github.com/vnik5287/kernel_rop/ )
+  : stepping through  / breakpoints
+
+  - Vitals talk on youtube. need to watch that again.
+   
+
