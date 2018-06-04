@@ -46,7 +46,7 @@
       Draw from:
       http://badbytes.io/2017/02/15/exploit-dev-0x01-64-bit-linux-stack-buffer-overflow/
     
-p**** Understanding a kernel stack trace.
+**** Understanding a kernel stack trace.
 
       When you get a backtrace you may see something similar to the below:
 
