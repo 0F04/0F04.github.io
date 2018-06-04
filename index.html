@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2018-06-04 Mon 16:41 -->
+<!-- 2018-06-04 Mon 16:42 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>EASY TALK</title>
@@ -242,96 +242,96 @@ for the JavaScript code in this tag.
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents">
 <ul>
-<li><a href="#orgc660d21">1. Kernel</a>
+<li><a href="#orgc224866">1. Kernel</a>
 <ul>
-<li><a href="#orgfc5a57c">1.1. Hiding a kernel malicious module.</a></li>
+<li><a href="#org18bcf2b">1.1. Hiding a kernel malicious module.</a></li>
 </ul>
 </li>
-<li><a href="#orgf13347e">2. Project ideas</a>
+<li><a href="#orgad93445">2. Project ideas</a>
 <ul>
-<li><a href="#orgf67187f">2.1. Build learning guide for infiltrate convention.</a>
+<li><a href="#orgaa233ba">2.1. Build learning guide for infiltrate convention.</a>
 <ul>
-<li><a href="#orga9f6042">Introduction and reason:</a></li>
-<li><a href="#orge5fad0a">Day 0 (Background information)</a>
+<li><a href="#org81ee370">Introduction and reason:</a></li>
+<li><a href="#org10eadd1">Day 0 (Background information)</a>
 <ul>
-<li><a href="#orge4ed4b7">How the stack works</a></li>
-<li><a href="#org84cf08b">Understanding a kernel stack trace.</a></li>
-<li><a href="#org3523d92">Userland vs kernel land.</a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li><a href="#org65bcd73">2.2. Day +1 (Preparation)</a>
-<ul>
-<li><a href="#org5e3c1ee">Setting up a kernel debugging environment</a>
-<ul>
-<li><a href="#org116191d">My document on blogs.redhat.com</a></li>
-</ul>
-</li>
-<li><a href="#org3af7064">Kernel internals</a>
-<ul>
-<li><a href="#orgb8bcf48">Memory models and the address space</a></li>
-</ul>
-</li>
-<li><a href="#org4a0cc25">Flaw types</a>
-<ul>
-<li><a href="#orgeb8a666">Infoleak</a></li>
-<li><a href="#orga8e84f7">Privesc</a></li>
-<li><a href="#orgf2cf686">X86 calling conventions.</a></li>
-<li><a href="#org459af3d">Key structures in privesc</a></li>
-</ul>
-</li>
-<li><a href="#org04eb4d1">Exploit stages</a>
-<ul>
-<li><a href="#orgaa27180">Was reading a book about the 4 stages of exploitation, cover that here.</a></li>
-</ul>
-</li>
-<li><a href="#orgad1154e">Common C Exploit types</a></li>
-<li><a href="#org216ece2">Kernel Mitigations</a>
-<ul>
-<li><a href="#org8055775">Stack guard page.</a></li>
-<li><a href="#org0c1213b">SMEP</a></li>
-<li><a href="#org7897f1b">SMAP</a></li>
-<li><a href="#org10651fe">STACKSLA&#x2026;. (grsec)</a></li>
-<li><a href="#org076ebb9">Struct alignment.</a></li>
-<li><a href="#org0b9c574">Hardening list ?</a></li>
-<li><a href="#org2ad892f">Seccomp sandboxing</a></li>
-<li><a href="#org130d55d">address<sub>limit</sub> checks</a></li>
+<li><a href="#orgf73ecde">How the stack works</a></li>
+<li><a href="#orgc287d90">Understanding a kernel stack trace.</a></li>
+<li><a href="#org5486bdb">Userland vs kernel land.</a></li>
 </ul>
 </li>
 </ul>
 </li>
-<li><a href="#org234d5e1">2.3. Day +2 (Exploit toolchain)</a>
+<li><a href="#orgec76a08">2.2. Day +1 (Preparation)</a>
 <ul>
-<li><a href="#org27b33a1">Abusing arbitrary read/write</a></li>
-<li><a href="#orgf21db8d">Abusing function pointers</a></li>
-<li><a href="#org1561392">Controlled memory 'corruption'</a>
+<li><a href="#orgc2764da">Setting up a kernel debugging environment</a>
 <ul>
-<li><a href="#orgb5bc8f3"><span class="todo TODO">TODO</span> create example of writing 'something' to a location, then spinning on</a></li>
+<li><a href="#org30b49c7">My document on blogs.redhat.com</a></li>
 </ul>
 </li>
-<li><a href="#org79f4b07">Simple Race conditions</a></li>
-</ul>
-</li>
-<li><a href="#org45d8697">2.4. Day +3</a>
+<li><a href="#orge20710e">Kernel internals</a>
 <ul>
-<li><a href="#org83294df">Logical and hardware related bugs</a></li>
-<li><a href="#org0409839">Kernel and hardware protection</a></li>
-<li><a href="#org132f7e3">Bypassing protections</a></li>
-<li><a href="#org1db4666">The future of kernel vulnerabilties</a></li>
+<li><a href="#org5a660aa">Memory models and the address space</a></li>
 </ul>
 </li>
-<li><a href="#org60c086f">2.5. Day +4 (Stuff that Doesn't fit )</a>
+<li><a href="#orgce42c7e">Flaw types</a>
 <ul>
-<li><a href="#org7196c62">Rootkits</a>
+<li><a href="#org7c3b52a">Infoleak</a></li>
+<li><a href="#org619bf9d">Privesc</a></li>
+<li><a href="#orge81f27b">X86 calling conventions.</a></li>
+<li><a href="#org4208ca9">Key structures in privesc</a></li>
+</ul>
+</li>
+<li><a href="#org4d48c66">Exploit stages</a>
 <ul>
-<li><a href="#org1e0591a">Tricks:</a></li>
+<li><a href="#org5b739a6">Was reading a book about the 4 stages of exploitation, cover that here.</a></li>
 </ul>
 </li>
-<li><a href="#orgbf73feb">Basic commit creds example:</a></li>
+<li><a href="#orgababb51">Common C Exploit types</a></li>
+<li><a href="#orgae00db3">Kernel Mitigations</a>
+<ul>
+<li><a href="#orgcff5079">Stack guard page.</a></li>
+<li><a href="#org87dbff8">SMEP</a></li>
+<li><a href="#orgfd45f49">SMAP</a></li>
+<li><a href="#orge3c8860">STACKSLA&#x2026;. (grsec)</a></li>
+<li><a href="#org7164147">Struct alignment.</a></li>
+<li><a href="#org3003bd4">Hardening list ?</a></li>
+<li><a href="#org48f0489">Seccomp sandboxing</a></li>
+<li><a href="#orgab39510">address<sub>limit</sub> checks</a></li>
 </ul>
 </li>
-<li><a href="#org90139ec">2.6. References / to sort.</a></li>
+</ul>
+</li>
+<li><a href="#orgaaf2ab9">2.3. Day +2 (Exploit toolchain)</a>
+<ul>
+<li><a href="#org90f4224">Abusing arbitrary read/write</a></li>
+<li><a href="#org6896eb2">Abusing function pointers</a></li>
+<li><a href="#org74e58bf">Controlled memory 'corruption'</a>
+<ul>
+<li><a href="#orge063035"><span class="todo TODO">TODO</span> create example of writing 'something' to a location, then spinning on</a></li>
+</ul>
+</li>
+<li><a href="#org6a9cff7">Simple Race conditions</a></li>
+</ul>
+</li>
+<li><a href="#orgf818e0f">2.4. Day +3</a>
+<ul>
+<li><a href="#org88b5c6f">Logical and hardware related bugs</a></li>
+<li><a href="#org6150900">Kernel and hardware protection</a></li>
+<li><a href="#org368f37c">Bypassing protections</a></li>
+<li><a href="#orgf38e54f">The future of kernel vulnerabilties</a></li>
+</ul>
+</li>
+<li><a href="#org425ac63">2.5. Day +4 (Stuff that Doesn't fit )</a>
+<ul>
+<li><a href="#orgc7e0019">Rootkits</a>
+<ul>
+<li><a href="#org2276428">Tricks:</a></li>
+</ul>
+</li>
+<li><a href="#orgf2997e5">Basic commit creds example:</a></li>
+</ul>
+</li>
+<li><a href="#orgac0734e">2.6. References / to sort.</a></li>
 </ul>
 </li>
 </ul>
@@ -339,27 +339,27 @@ for the JavaScript code in this tag.
 </div>
 
 
-<div id="outline-container-orgc660d21" class="outline-2">
-<h2 id="orgc660d21"><span class="section-number-2">1</span> Kernel</h2>
+<div id="outline-container-orgc224866" class="outline-2">
+<h2 id="orgc224866"><span class="section-number-2">1</span> Kernel</h2>
 <div class="outline-text-2" id="text-1">
 </div>
-<div id="outline-container-orgfc5a57c" class="outline-3">
-<h3 id="orgfc5a57c"><span class="section-number-3">1.1</span> Hiding a kernel malicious module.</h3>
+<div id="outline-container-org18bcf2b" class="outline-3">
+<h3 id="org18bcf2b"><span class="section-number-3">1.1</span> Hiding a kernel malicious module.</h3>
 </div>
 </div>
 
 
-<div id="outline-container-orgf13347e" class="outline-2">
-<h2 id="orgf13347e"><span class="section-number-2">2</span> Project ideas</h2>
+<div id="outline-container-orgad93445" class="outline-2">
+<h2 id="orgad93445"><span class="section-number-2">2</span> Project ideas</h2>
 <div class="outline-text-2" id="text-2">
 </div>
-<div id="outline-container-orgf67187f" class="outline-3">
-<h3 id="orgf67187f"><span class="section-number-3">2.1</span> Build learning guide for infiltrate convention.</h3>
+<div id="outline-container-orgaa233ba" class="outline-3">
+<h3 id="orgaa233ba"><span class="section-number-3">2.1</span> Build learning guide for infiltrate convention.</h3>
 <div class="outline-text-3" id="text-2-1">
 </div>
-<div id="outline-container-orga9f6042" class="outline-4">
-<h4 id="orga9f6042">Introduction and reason:</h4>
-<div class="outline-text-4" id="text-orga9f6042">
+<div id="outline-container-org81ee370" class="outline-4">
+<h4 id="org81ee370">Introduction and reason:</h4>
+<div class="outline-text-4" id="text-org81ee370">
 <p>
 This is a learning preparedness series for my journey to infiltrate2018 for 
 "master track: kernel exploitation"
@@ -388,13 +388,13 @@ the topics and make this as fruitful as possible.
 </div>
 </div>
 
-<div id="outline-container-orge5fad0a" class="outline-4">
-<h4 id="orge5fad0a">Day 0 (Background information)</h4>
-<div class="outline-text-4" id="text-orge5fad0a">
+<div id="outline-container-org10eadd1" class="outline-4">
+<h4 id="org10eadd1">Day 0 (Background information)</h4>
+<div class="outline-text-4" id="text-org10eadd1">
 </div>
-<div id="outline-container-orge4ed4b7" class="outline-5">
-<h5 id="orge4ed4b7">How the stack works</h5>
-<div class="outline-text-5" id="text-orge4ed4b7">
+<div id="outline-container-orgf73ecde" class="outline-5">
+<h5 id="orgf73ecde">How the stack works</h5>
+<div class="outline-text-5" id="text-orgf73ecde">
 <p>
 Draw from:
 <a href="http://badbytes.io/2017/02/15/exploit-dev-0x01-64-bit-linux-stack-buffer-overflow/">http://badbytes.io/2017/02/15/exploit-dev-0x01-64-bit-linux-stack-buffer-overflow/</a>
@@ -402,9 +402,9 @@ Draw from:
 </div>
 </div>
 
-<div id="outline-container-org84cf08b" class="outline-5">
-<h5 id="org84cf08b">Understanding a kernel stack trace.</h5>
-<div class="outline-text-5" id="text-org84cf08b">
+<div id="outline-container-orgc287d90" class="outline-5">
+<h5 id="orgc287d90">Understanding a kernel stack trace.</h5>
+<div class="outline-text-5" id="text-orgc287d90">
 <p>
 When you get a backtrace you may see something similar to the below:
 </p>
@@ -643,13 +643,13 @@ References:
 </div>
 </div>
 
-<div id="outline-container-org3523d92" class="outline-5">
-<h5 id="org3523d92">Userland vs kernel land.</h5>
-<div class="outline-text-5" id="text-org3523d92">
+<div id="outline-container-org5486bdb" class="outline-5">
+<h5 id="org5486bdb">Userland vs kernel land.</h5>
+<div class="outline-text-5" id="text-org5486bdb">
 </div>
 <ul class="org-ul">
-<li><a id="orgcf94794"></a>What is userspace:<br />
-<div class="outline-text-6" id="text-orgcf94794">
+<li><a id="orgea511e7"></a>What is userspace:<br />
+<div class="outline-text-6" id="text-orgea511e7">
 <p>
 Userspace is an area of memory reserved for applications that run on behalf
 of users to execute.  It has a contiguous section of memory of a subsection of
@@ -668,8 +668,8 @@ virtual address space uses page tables to look things up.
 </div>
 </li>
 
-<li><a id="orge8e038b"></a>What is a syscall?<br />
-<div class="outline-text-6" id="text-orge8e038b">
+<li><a id="orgca639b9"></a>What is a syscall?<br />
+<div class="outline-text-6" id="text-orgca639b9">
 <p>
 A system call, sometimes referred to as a kernel call, is a request in a
 Unix-like operating system made via a software interrupt by an active 
@@ -682,8 +682,8 @@ Link to any POSIX spec for syscalls or doc on syscalls ?
 </div>
 </li>
 
-<li><a id="orgb7a1c88"></a>What is an ioctl ?<br />
-<div class="outline-text-6" id="text-orgb7a1c88">
+<li><a id="orgbcea7b3"></a>What is an ioctl ?<br />
+<div class="outline-text-6" id="text-orgbcea7b3">
 <p>
 An ioctl (an abbreviation of input/output control) is a system call for 
 device-specific input/output operations and other operations which cannot be
@@ -733,18 +733,18 @@ message regarding why the request could not be completed.
 </div>
 </li>
 
-<li><a id="org4063f31"></a>What is sysfs/configfs ?<br />
-<div class="outline-text-6" id="text-org4063f31">
+<li><a id="org6def92d"></a>What is sysfs/configfs ?<br />
+<div class="outline-text-6" id="text-org6def92d">
 <p>
 Link to source code of sysfs generics.
 </p>
 </div>
 </li>
 
-<li><a id="org98895b9"></a>What is <i>dev</i><br /></li>
+<li><a id="orga643f43"></a>What is <i>dev</i><br /></li>
 
-<li><a id="org4b517b5"></a>What is Netlink messages ?<br />
-<div class="outline-text-6" id="text-org4b517b5">
+<li><a id="org7c44176"></a>What is Netlink messages ?<br />
+<div class="outline-text-6" id="text-org7c44176">
 <ul class="org-ul">
 <li>Limited subset of commands.</li>
 <li>Examples provided by me will be done in kernel modules loaded at run time.</li>
@@ -760,8 +760,8 @@ Netlink flaw:
 </div>
 </li>
 
-<li><a id="orgb3b01ae"></a>What is kernel space<br />
-<div class="outline-text-6" id="text-orgb3b01ae">
+<li><a id="org08112a4"></a>What is kernel space<br />
+<div class="outline-text-6" id="text-org08112a4">
 <ul class="org-ul">
 <li>No floating point work done in kernel, those registers get smashed.</li>
 <li>no stdlibs from glibc.</li>
@@ -796,17 +796,17 @@ Linux kernel process memory map
 </div>
 </div>
 
-<div id="outline-container-org65bcd73" class="outline-3">
-<h3 id="org65bcd73"><span class="section-number-3">2.2</span> Day +1 (Preparation)</h3>
+<div id="outline-container-orgec76a08" class="outline-3">
+<h3 id="orgec76a08"><span class="section-number-3">2.2</span> Day +1 (Preparation)</h3>
 <div class="outline-text-3" id="text-2-2">
 </div>
-<div id="outline-container-org5e3c1ee" class="outline-4">
-<h4 id="org5e3c1ee">Setting up a kernel debugging environment</h4>
-<div class="outline-text-4" id="text-org5e3c1ee">
+<div id="outline-container-orgc2764da" class="outline-4">
+<h4 id="orgc2764da">Setting up a kernel debugging environment</h4>
+<div class="outline-text-4" id="text-orgc2764da">
 </div>
-<div id="outline-container-org116191d" class="outline-5">
-<h5 id="org116191d">My document on blogs.redhat.com</h5>
-<div class="outline-text-5" id="text-org116191d">
+<div id="outline-container-org30b49c7" class="outline-5">
+<h5 id="org30b49c7">My document on blogs.redhat.com</h5>
+<div class="outline-text-5" id="text-org30b49c7">
 <ul class="org-ul">
 <li><a href="https://gist.github.com/wmealing/24db20d60995a57ab5b8fc550378e54e">https://gist.github.com/wmealing/24db20d60995a57ab5b8fc550378e54e</a></li>
 <li>Reproduca , pull down and put on github.
@@ -818,46 +818,46 @@ Linux kernel process memory map
 </div>
 </div>
 
-<div id="outline-container-org3af7064" class="outline-4">
-<h4 id="org3af7064">Kernel internals</h4>
-<div class="outline-text-4" id="text-org3af7064">
+<div id="outline-container-orge20710e" class="outline-4">
+<h4 id="orge20710e">Kernel internals</h4>
+<div class="outline-text-4" id="text-orge20710e">
 </div>
-<div id="outline-container-orgb8bcf48" class="outline-5">
-<h5 id="orgb8bcf48">Memory models and the address space</h5>
+<div id="outline-container-org5a660aa" class="outline-5">
+<h5 id="org5a660aa">Memory models and the address space</h5>
 </div>
 </div>
-<div id="outline-container-org4a0cc25" class="outline-4">
-<h4 id="org4a0cc25">Flaw types</h4>
-<div class="outline-text-4" id="text-org4a0cc25">
+<div id="outline-container-orgce42c7e" class="outline-4">
+<h4 id="orgce42c7e">Flaw types</h4>
+<div class="outline-text-4" id="text-orgce42c7e">
 </div>
-<div id="outline-container-orgeb8a666" class="outline-5">
-<h5 id="orgeb8a666">Infoleak</h5>
-<div class="outline-text-5" id="text-orgeb8a666">
+<div id="outline-container-org7c3b52a" class="outline-5">
+<h5 id="org7c3b52a">Infoleak</h5>
+<div class="outline-text-5" id="text-org7c3b52a">
 <p>
 Reveals offsets and values of shit on stack.
 </p>
 </div>
 </div>
-<div id="outline-container-orga8e84f7" class="outline-5">
-<h5 id="orga8e84f7">Privesc</h5>
-<div class="outline-text-5" id="text-orga8e84f7">
+<div id="outline-container-org619bf9d" class="outline-5">
+<h5 id="org619bf9d">Privesc</h5>
+<div class="outline-text-5" id="text-org619bf9d">
 <p>
 Changing the running priv of the current program.
 </p>
 </div>
 </div>
 
-<div id="outline-container-orgf2cf686" class="outline-5">
-<h5 id="orgf2cf686">X86 calling conventions.</h5>
+<div id="outline-container-orge81f27b" class="outline-5">
+<h5 id="orge81f27b">X86 calling conventions.</h5>
 </div>
-<div id="outline-container-org459af3d" class="outline-5">
-<h5 id="org459af3d">Key structures in privesc</h5>
-<div class="outline-text-5" id="text-org459af3d">
+<div id="outline-container-org4208ca9" class="outline-5">
+<h5 id="org4208ca9">Key structures in privesc</h5>
+<div class="outline-text-5" id="text-org4208ca9">
 </div>
 <ul class="org-ul">
-<li><a id="org08fa7c1"></a>Task struct<br /></li>
-<li><a id="orgd635822"></a>Thread info struct<br />
-<div class="outline-text-6" id="text-orgd635822">
+<li><a id="org8f809e1"></a>Task struct<br /></li>
+<li><a id="org5b6fefe"></a>Thread info struct<br />
+<div class="outline-text-6" id="text-org5b6fefe">
 <p>
 From a process whats it look like
 </p>
@@ -868,27 +868,27 @@ From a process whats it look like
 </div>
 
 
-<div id="outline-container-org04eb4d1" class="outline-4">
-<h4 id="org04eb4d1">Exploit stages</h4>
-<div class="outline-text-4" id="text-org04eb4d1">
+<div id="outline-container-org4d48c66" class="outline-4">
+<h4 id="org4d48c66">Exploit stages</h4>
+<div class="outline-text-4" id="text-org4d48c66">
 </div>
-<div id="outline-container-orgaa27180" class="outline-5">
-<h5 id="orgaa27180">Was reading a book about the 4 stages of exploitation, cover that here.</h5>
-<div class="outline-text-5" id="text-orgaa27180">
+<div id="outline-container-org5b739a6" class="outline-5">
+<h5 id="org5b739a6">Was reading a book about the 4 stages of exploitation, cover that here.</h5>
+<div class="outline-text-5" id="text-org5b739a6">
 </div>
 <ul class="org-ul">
-<li><a id="org869877c"></a>Stage 1: Setup/Initialization<br /></li>
-<li><a id="org36913c2"></a>Stage 2: <span class="underline"><span class="underline"><span class="underline">_</span></span></span><br /></li>
-<li><a id="org11dfd92"></a>Stage 3: Exploitation<br /></li>
-<li><a id="org3333432"></a>Stage 4: Recovery / Cleanup ?<br /></li>
+<li><a id="org7cfe208"></a>Stage 1: Setup/Initialization<br /></li>
+<li><a id="org32aa417"></a>Stage 2: <span class="underline"><span class="underline"><span class="underline">_</span></span></span><br /></li>
+<li><a id="orgf7c8365"></a>Stage 3: Exploitation<br /></li>
+<li><a id="org0544b6f"></a>Stage 4: Recovery / Cleanup ?<br /></li>
 </ul>
 </div>
 </div>
 
 
-<div id="outline-container-orgad1154e" class="outline-4">
-<h4 id="orgad1154e">Common C Exploit types</h4>
-<div class="outline-text-4" id="text-orgad1154e">
+<div id="outline-container-orgababb51" class="outline-4">
+<h4 id="orgababb51">Common C Exploit types</h4>
+<div class="outline-text-4" id="text-orgababb51">
 <ul class="org-ul">
 <li>Signedness issues
 <a href="https://en.wikibooks.org/wiki/X86_Assembly/Control_Flow#Jump_if_Above_.28unsigned_comparison.29">https://en.wikibooks.org/wiki/X86_Assembly/Control_Flow#Jump_if_Above_.28unsigned_comparison.29</a></li>
@@ -906,21 +906,21 @@ Used to generate offsets to find task<sub>struct</sub> and set uid / gid to 0.</
 </div>
 </div>
 
-<div id="outline-container-org216ece2" class="outline-4">
-<h4 id="org216ece2">Kernel Mitigations</h4>
-<div class="outline-text-4" id="text-org216ece2">
+<div id="outline-container-orgae00db3" class="outline-4">
+<h4 id="orgae00db3">Kernel Mitigations</h4>
+<div class="outline-text-4" id="text-orgae00db3">
 <p>
 Describe each one of the kernel mitigatations.
 </p>
 </div>
 
-<div id="outline-container-org8055775" class="outline-5">
-<h5 id="org8055775">Stack guard page.</h5>
+<div id="outline-container-orgcff5079" class="outline-5">
+<h5 id="orgcff5079">Stack guard page.</h5>
 </div>
 
-<div id="outline-container-org0c1213b" class="outline-5">
-<h5 id="org0c1213b">SMEP</h5>
-<div class="outline-text-5" id="text-org0c1213b">
+<div id="outline-container-org87dbff8" class="outline-5">
+<h5 id="org87dbff8">SMEP</h5>
+<div class="outline-text-5" id="text-org87dbff8">
 <p>
 Bypassing SMEP (Supervisor Mode Execution Protection)
 :- <a href="http://vulnfactory.org/blog/2011/06/05/smep-what-is-it-and-how-to-beat-it-on-linux/">http://vulnfactory.org/blog/2011/06/05/smep-what-is-it-and-how-to-beat-it-on-linux/</a>
@@ -928,9 +928,9 @@ Bypassing SMEP (Supervisor Mode Execution Protection)
 </div>
 </div>
 
-<div id="outline-container-org7897f1b" class="outline-5">
-<h5 id="org7897f1b">SMAP</h5>
-<div class="outline-text-5" id="text-org7897f1b">
+<div id="outline-container-orgfd45f49" class="outline-5">
+<h5 id="orgfd45f49">SMAP</h5>
+<div class="outline-text-5" id="text-orgfd45f49">
 <ul class="org-ul">
 <li><p>
 <a href="https://github.com/wmealing/playground/tree/master/kernel-module-disable-smep">https://github.com/wmealing/playground/tree/master/kernel-module-disable-smep</a>
@@ -954,23 +954,23 @@ LWN made a page on it <a href="https://lwn.net/Articles/517475/">https://lwn.net
 </div>
 </div>
 
-<div id="outline-container-org10651fe" class="outline-5">
-<h5 id="org10651fe">STACKSLA&#x2026;. (grsec)</h5>
+<div id="outline-container-orge3c8860" class="outline-5">
+<h5 id="orge3c8860">STACKSLA&#x2026;. (grsec)</h5>
 </div>
-<div id="outline-container-org076ebb9" class="outline-5">
-<h5 id="org076ebb9">Struct alignment.</h5>
-</div>
-
-<div id="outline-container-org0b9c574" class="outline-5">
-<h5 id="org0b9c574">Hardening list ?</h5>
+<div id="outline-container-org7164147" class="outline-5">
+<h5 id="org7164147">Struct alignment.</h5>
 </div>
 
-<div id="outline-container-org2ad892f" class="outline-5">
-<h5 id="org2ad892f">Seccomp sandboxing</h5>
+<div id="outline-container-org3003bd4" class="outline-5">
+<h5 id="org3003bd4">Hardening list ?</h5>
 </div>
-<div id="outline-container-org130d55d" class="outline-5">
-<h5 id="org130d55d">address<sub>limit</sub> checks</h5>
-<div class="outline-text-5" id="text-org130d55d">
+
+<div id="outline-container-org48f0489" class="outline-5">
+<h5 id="org48f0489">Seccomp sandboxing</h5>
+</div>
+<div id="outline-container-orgab39510" class="outline-5">
+<h5 id="orgab39510">address<sub>limit</sub> checks</h5>
+<div class="outline-text-5" id="text-orgab39510">
 <p>
 Vitaly talks about it here <a href="https://www.youtube.com/watch?v=UFakJa3t8Ls&amp;t=7s">https://www.youtube.com/watch?v=UFakJa3t8Ls&amp;t=7s</a>
 </p>
@@ -985,13 +985,13 @@ any application can have arbitrary read/write of kernel address space.
 </div>
 </div>
 
-<div id="outline-container-org234d5e1" class="outline-3">
-<h3 id="org234d5e1"><span class="section-number-3">2.3</span> Day +2 (Exploit toolchain)</h3>
+<div id="outline-container-orgaaf2ab9" class="outline-3">
+<h3 id="orgaaf2ab9"><span class="section-number-3">2.3</span> Day +2 (Exploit toolchain)</h3>
 <div class="outline-text-3" id="text-2-3">
 </div>
-<div id="outline-container-org27b33a1" class="outline-4">
-<h4 id="org27b33a1">Abusing arbitrary read/write</h4>
-<div class="outline-text-4" id="text-org27b33a1">
+<div id="outline-container-org90f4224" class="outline-4">
+<h4 id="org90f4224">Abusing arbitrary read/write</h4>
+<div class="outline-text-4" id="text-org90f4224">
 <p>
 Show how infoleak + write can end up with a user discovering the location
 of the task struct (then creds) then setting effective uid and gid.
@@ -999,13 +999,13 @@ of the task struct (then creds) then setting effective uid and gid.
 </div>
 
 <ul class="org-ul">
-<li><a id="org9c15a5d"></a><span class="todo TODO">TODO</span> Create github example module that allows for 1 byte read  and  write.<br /></li>
+<li><a id="org2e78adf"></a><span class="todo TODO">TODO</span> Create github example module that allows for 1 byte read  and  write.<br /></li>
 </ul>
 </div>
 
-<div id="outline-container-orgf21db8d" class="outline-4">
-<h4 id="orgf21db8d">Abusing function pointers</h4>
-<div class="outline-text-4" id="text-orgf21db8d">
+<div id="outline-container-org6896eb2" class="outline-4">
+<h4 id="org6896eb2">Abusing function pointers</h4>
+<div class="outline-text-4" id="text-org6896eb2">
 <p>
 Show how abusing arbitary writes and then calling a function pointer
 to controlled code can control EIP.
@@ -1017,22 +1017,22 @@ Mitigations will prevent this from happening.
 </div>
 
 <ul class="org-ul">
-<li><a id="orge4cc588"></a><span class="todo TODO">TODO</span> create github example of module that allows for arb read/write and fn abuse.<br /></li>
+<li><a id="org53342e6"></a><span class="todo TODO">TODO</span> create github example of module that allows for arb read/write and fn abuse.<br /></li>
 </ul>
 </div>
 
-<div id="outline-container-org1561392" class="outline-4">
-<h4 id="org1561392">Controlled memory 'corruption'</h4>
-<div class="outline-text-4" id="text-org1561392">
+<div id="outline-container-org74e58bf" class="outline-4">
+<h4 id="org74e58bf">Controlled memory 'corruption'</h4>
+<div class="outline-text-4" id="text-org74e58bf">
 <p>
 Sometimes only writes are not controlled, but corrupting,
 how do we take advantage of that
 </p>
 </div>
 
-<div id="outline-container-orgb5bc8f3" class="outline-5">
-<h5 id="orgb5bc8f3"><span class="todo TODO">TODO</span> create example of writing 'something' to a location, then spinning on</h5>
-<div class="outline-text-5" id="text-orgb5bc8f3">
+<div id="outline-container-orge063035" class="outline-5">
+<h5 id="orge063035"><span class="todo TODO">TODO</span> create example of writing 'something' to a location, then spinning on</h5>
+<div class="outline-text-5" id="text-orge063035">
 <p>
 it&#x2026; slab trashing ?
 </p>
@@ -1040,25 +1040,25 @@ it&#x2026; slab trashing ?
 </div>
 </div>
 
-<div id="outline-container-org79f4b07" class="outline-4">
-<h4 id="org79f4b07">Simple Race conditions</h4>
-<div class="outline-text-4" id="text-org79f4b07">
+<div id="outline-container-org6a9cff7" class="outline-4">
+<h4 id="org6a9cff7">Simple Race conditions</h4>
+<div class="outline-text-4" id="text-org6a9cff7">
 <p>
 How do we abuse race conditions (show dirty cow ?)
 </p>
 </div>
 </div>
 </div>
-<div id="outline-container-org45d8697" class="outline-3">
-<h3 id="org45d8697"><span class="section-number-3">2.4</span> Day +3</h3>
+<div id="outline-container-orgf818e0f" class="outline-3">
+<h3 id="orgf818e0f"><span class="section-number-3">2.4</span> Day +3</h3>
 <div class="outline-text-3" id="text-2-4">
 </div>
-<div id="outline-container-org83294df" class="outline-4">
-<h4 id="org83294df">Logical and hardware related bugs</h4>
+<div id="outline-container-org88b5c6f" class="outline-4">
+<h4 id="org88b5c6f">Logical and hardware related bugs</h4>
 </div>
-<div id="outline-container-org0409839" class="outline-4">
-<h4 id="org0409839">Kernel and hardware protection</h4>
-<div class="outline-text-4" id="text-org0409839">
+<div id="outline-container-org6150900" class="outline-4">
+<h4 id="org6150900">Kernel and hardware protection</h4>
+<div class="outline-text-4" id="text-org6150900">
 <ul class="org-ul">
 <li>Reference capcom simple example, and make it.</li>
 <li>Show how to prepare example with protections disabled.</li>
@@ -1067,9 +1067,9 @@ How do we abuse race conditions (show dirty cow ?)
 </div>
 </div>
 
-<div id="outline-container-org132f7e3" class="outline-4">
-<h4 id="org132f7e3">Bypassing protections</h4>
-<div class="outline-text-4" id="text-org132f7e3">
+<div id="outline-container-org368f37c" class="outline-4">
+<h4 id="org368f37c">Bypassing protections</h4>
+<div class="outline-text-4" id="text-org368f37c">
 <p>
 -&gt; Show shellcode how to disable CR3.
 </p>
@@ -1077,9 +1077,9 @@ How do we abuse race conditions (show dirty cow ?)
 </div>
 
 
-<div id="outline-container-org1db4666" class="outline-4">
-<h4 id="org1db4666">The future of kernel vulnerabilties</h4>
-<div class="outline-text-4" id="text-org1db4666">
+<div id="outline-container-orgf38e54f" class="outline-4">
+<h4 id="orgf38e54f">The future of kernel vulnerabilties</h4>
+<div class="outline-text-4" id="text-orgf38e54f">
 <ul class="org-ul">
 <li>Only logic ? Damn kernel hardening efforts ?</li>
 </ul>
@@ -1087,24 +1087,24 @@ How do we abuse race conditions (show dirty cow ?)
 </div>
 </div>
 
-<div id="outline-container-org60c086f" class="outline-3">
-<h3 id="org60c086f"><span class="section-number-3">2.5</span> Day +4 (Stuff that Doesn't fit )</h3>
+<div id="outline-container-org425ac63" class="outline-3">
+<h3 id="org425ac63"><span class="section-number-3">2.5</span> Day +4 (Stuff that Doesn't fit )</h3>
 <div class="outline-text-3" id="text-2-5">
 </div>
-<div id="outline-container-org7196c62" class="outline-4">
-<h4 id="org7196c62">Rootkits</h4>
-<div class="outline-text-4" id="text-org7196c62">
+<div id="outline-container-orgc7e0019" class="outline-4">
+<h4 id="orgc7e0019">Rootkits</h4>
+<div class="outline-text-4" id="text-orgc7e0019">
 <p>
 <a href="https://github.com/f0rb1dd3n/">https://github.com/f0rb1dd3n/</a>
 </p>
 </div>
-<div id="outline-container-org1e0591a" class="outline-5">
-<h5 id="org1e0591a">Tricks:</h5>
-<div class="outline-text-5" id="text-org1e0591a">
+<div id="outline-container-org2276428" class="outline-5">
+<h5 id="org2276428">Tricks:</h5>
+<div class="outline-text-5" id="text-org2276428">
 </div>
 <ul class="org-ul">
-<li><a id="org340082b"></a>Finding Offset in structs.<br />
-<div class="outline-text-6" id="text-org340082b">
+<li><a id="orgec29b73"></a>Finding Offset in structs.<br />
+<div class="outline-text-6" id="text-orgec29b73">
 <p>
 In crash,(and maybe GDB, stolen from   <a href="https://youtu.be/UFakJa3t8Ls?t=2995">https://youtu.be/UFakJa3t8Ls?t=2995</a>)
 </p>
@@ -1119,9 +1119,9 @@ x/x &amp;((struct somestruct *)0x1000)-&gt;element
 </div>
 </div>
 
-<div id="outline-container-orgbf73feb" class="outline-4">
-<h4 id="orgbf73feb">Basic commit creds example:</h4>
-<div class="outline-text-4" id="text-orgbf73feb">
+<div id="outline-container-orgf2997e5" class="outline-4">
+<h4 id="orgf2997e5">Basic commit creds example:</h4>
+<div class="outline-text-4" id="text-orgf2997e5">
 <p>
 Privilege escalation
 </p>
@@ -1141,8 +1141,8 @@ Dont know
 </div>
 </div>
 
-<div id="outline-container-org90139ec" class="outline-3">
-<h3 id="org90139ec"><span class="section-number-3">2.6</span> References / to sort.</h3>
+<div id="outline-container-orgac0734e" class="outline-3">
+<h3 id="orgac0734e"><span class="section-number-3">2.6</span> References / to sort.</h3>
 <div class="outline-text-3" id="text-2-6">
 <ul class="org-ul">
 <li>android kernel exploitation playground
@@ -1225,7 +1225,7 @@ stepping through  / breakpoints
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: 0F04</p>
-<p class="date">Created: 2018-06-04 Mon 16:41</p>
+<p class="date">Created: 2018-06-04 Mon 16:42</p>
 <p class="validation"><a href="http://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>
