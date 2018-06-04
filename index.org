@@ -353,29 +353,28 @@
     https://www.kernel.org/doc/Documentation/x86/x86_64/mm.txt
 
 ** Day +1 (Preparation)
-*** Setting up a kernel debugging environment
-**** Setting up the kernel to be debugged.
+*** Setting up the kernel to be debugged.
 
-     A kernel bug on oss-security list, claims to create a situation in which
-     memory corruption can panic the system. An integer used in determining the
-     size of TCP send and receive buffers can be set to be a negative value.
-     Red Hat engineering sometimes back-ports security and features from the
-     current kernel. These backports diverge the Red Hat Enterprise Linux
-     kernel from upstream and some security issues will no longer apply. This
-     document post shows how to use live kernel debugging to determine if a
-     system is at risk by this integer overflow flaw.
+    A kernel bug on oss-security list, claims to create a situation in which
+    memory corruption can panic the system. An integer used in determining the
+    size of TCP send and receive buffers can be set to be a negative value.
+    Red Hat engineering sometimes back-ports security and features from the
+    current kernel. These backports diverge the Red Hat Enterprise Linux
+    kernel from upstream and some security issues will no longer apply. This
+    document post shows how to use live kernel debugging to determine if a
+    system is at risk by this integer overflow flaw.
 
 
-     This walkthrough assumes that the reader has a Red Hat Enterprise Linux 7
-     guest and basic knowledge of C programming.
+    This walkthrough assumes that the reader has a Red Hat Enterprise Linux 7
+    guest and basic knowledge of C programming.
 
-*****  Setting up the guest target to debug.
+**** Setting up the guest target to debug.
 
-     The guest to be the target of the debugging session is a libvirt (or
-     KVM/QEMU) style guest. The guest virtual serial port should be mapped to
-     the TCP port (TCP/1234) for use by the GDB .
+    The guest to be the target of the debugging session is a libvirt (or
+    KVM/QEMU) style guest. The guest virtual serial port should be mapped to
+    the TCP port (TCP/1234) for use by the GDB .
 
-***** Modifying the guest domain file
+**** Modifying the guest domain file
 
      The virsh-edit command is intended to be a safe method of manipulating the
      raw XML which is what we need to do in this circumstance. We need to
@@ -400,52 +399,49 @@
      parameter to qemu for this guest when starting.
 
 
-#+BEGIN_EXAMPLE
-<domain type='kvm'
-       xmlns:qemu='http://libvirt.org/schemas/domain/qemu/1.0' >
-     <qemu:commandline>
-          <qemu:arg value='-s'/>
-     </qemu:commandline>
-#+END_EXAMPLE
+     #+BEGIN_EXAMPLE
+     <domain type='kvm'
+            xmlns:qemu='http://libvirt.org/schemas/domain/qemu/1.0' >
+          <qemu:commandline>
+               <qemu:arg value='-s'/>
+          </qemu:commandline>
+     #+END_EXAMPLE
 
 
-Save the file and exit the editor. Some versions of libvirt may complain the
-XML has invalid attributes, ignore this and save the file anyway. The libvirtd
-daemon does not need to be restarted. The guest will need to destroyed and
-restarted if it is already running.
+     Save the file and exit the editor. Some versions of libvirt may complain the
+     XML has invalid attributes, ignore this and save the file anyway. The libvirtd
+     daemon does not need to be restarted. The guest will need to destroyed and
+     restarted if it is already running.
 
-The -s parameter: it is a shortcut for -gdb tcp::1234 if you have many hosts
-needing debugging on different ports or already have a service running on port
-1234 on the guest, you can set the port explicitly as shown below:
+     The -s parameter: it is a shortcut for -gdb tcp::1234 if you have many hosts
+     needing debugging on different ports or already have a service running on port
+     1234 on the guest, you can set the port explicitly as shown below:
+     
+     #+BEGIN_EXAMPLE
+       <qemu:commandline>
+             <qemu:arg value='-gdb'/>
+             <qemu:arg value='tcp::1235'/>
+       </qemu:commandline>
+     #+END_EXAMPLE
 
-#+BEGIN_EXAMPLE
-  <qemu:commandline>
-        <qemu:arg value='-gdb'/>
-        <qemu:arg value='tcp::1235'/>
-  </qemu:commandline>
-#+END_EXAMPLE
+     If its working, a qemu process will be listening on port specified as shown below:
 
-If its working, a qemu process will be listening on port specified as shown below:
+     #+BEGIN_EXAMPLE
+     [root@target]# netstat -taupn |grep tcp |grep 1234
+     tcp        0      0 0.0.0.0:1234            0.0.0.0:*               LISTEN      11950/qemu-system-x
+     #+END_EXAMPLE
 
-#+BEGIN_EXAMPLE
+**** Change /etc/default/grub
 
+     The kernel will need to booted with new parameters to enable kgdb debugging facilities. Add the values kgdboc=ttyS0,115200. In the system shown here, a serial console is also running on ttyS0 with no adverse affects.
 
-[root@target]# netstat -taupn |grep tcp |grep 1234
-tcp        0      0 0.0.0.0:1234            0.0.0.0:*               LISTEN      11950/qemu-system-x
-#+END_EXAMPLE
+     Use the helpful grubby to apply these changes across all kernels.
 
+     #+BEGIN_EXAMPLE
+     # grubby --update-kernel=ALL --args="console=ttyS0,115200 kgdboc=ttyS0,115200"
+     #+END_EXAMPLE
 
-***** Change /etc/default/grub
-
-      The kernel will need to booted with new parameters to enable kgdb debugging facilities. Add the values kgdboc=ttyS0,115200. In the system shown here, a serial console is also running on ttyS0 with no adverse affects.
-
-      Use the helpful grubby to apply these changes across all kernels.
-
-      #+BEGIN_EXAMPLE
-      # grubby --update-kernel=ALL --args="console=ttyS0,115200 kgdboc=ttyS0,115200"
-      #+END_EXAMPLE
-
-*****  Downloading debuginfo packages.
+**** Downloading debuginfo packages.
 
     The Red Hat Enterprise Linux kernel packages do not include debug symbols, debug symbols are stripped from binary files at build time. Gdb uses debug symbols to assist programmers when debugging. For more information on debuginfo see this segment of the Red Hat Enteprise Linux 7 developer guide](https://access.redhat.com/documentation/en-US/Red_Hat_Enterprise_Linux/7/html/Developer_Guide/intro.debuginfo.html).
 
@@ -459,9 +455,9 @@ tcp        0      0 0.0.0.0:1234            0.0.0.0:*               LISTEN      
     #+END_EXAMPLE
 
 
-This should download two files in the current directory on the host for later extraction and use by gdb.
+     This should download two files in the current directory on the host for later extraction and use by gdb.
 
-Copy these files from the target to the host for use. I choose the ~/kernel-debug/ as a sane location for these files. Create the directory if it doesn't already exist.
+     Copy these files from the target to the host for use. I choose the ~/kernel-debug/ as a sane location for these files. Create the directory if it doesn't already exist.
 
     #+BEGIN_EXAMPLE
     # mkdir ~/kernel-debug
@@ -471,64 +467,72 @@ Copy these files from the target to the host for use. I choose the ~/kernel-debu
     The final step on the guest is to reboot the target. At this point the
     system should reboot with no change in behavior.
 
-*****   Preparing the host to debug
+**** Preparing the host to debug
 
-The system which runs the debugger, doesn't need to be the host that contains the guest. The host must capable of making a connection to the system running on the specified port (1234). In this example these commands will be run on the host which contains the virtual machine.
-Installing gdb:
+     The system which runs the debugger, doesn't need to be the host that contains the guest. The host must capable of making a connection to the system running on the specified port (1234). In this example these commands will be run on the host which contains the virtual machine.
 
-Install GDB on the host using a package manager.
+     Installing gdb:
+     
+     Install GDB on the host using a package manager.
 
-#+BEGIN_EXAMPLE
-# sudo yum -y install gdb
-#+END_EXAMPLE
-Extracting files to be used from RPMS.
+     #+BEGIN_EXAMPLE
+     # sudo yum -y install gdb
+     #+END_EXAMPLE
+     Extracting files to be used from RPMS.
 
-When Red Hat builds the kernel it strips debugging symbols from the RPMS. This creates smaller downloads and uses less memory on when running. The stripped versions are named kernel-X.YY-N-MMMMM.somearch.rpm. The non-stripped debug information is stored in debuginfo rpms. These were files downloaded earlier in this document by using debuginfo-install. It must match the kernel version and architecture being debugged exactly to be of any use.
+     When Red Hat builds the kernel it strips debugging symbols from the RPMS.
+     This creates smaller downloads and uses less memory on when running. The
+     stripped versions are named kernel-X.YY-N-MMMMM.somearch.rpm. The
+     non-stripped debug information is stored in debuginfo rpms. These were
+     files downloaded earlier in this document by using debuginfo-install. It
+     must match the kernel version and architecture being debugged exactly to
+     be of any use.
 
-The target may not match the host system architecture or release version. The example below can extract files from RPMS on such systems.
+     The target may not match the host system architecture or release version.
+     The example below can extract files from RPMS on such systems.
 
-#+BEGIN_EXAMPLE
-# cd ~/kernel-debug
-# rpm2cpio kernel-debuginfo-3.10.0-327.el7.x86_64.rpm | cpio -idmv
-# rpm2cpio kernel-debuginfo-common-3.10.0-327.el7.x86_64.rpm | cpio -idmv
-#+END_EXAMPLE
+     #+BEGIN_EXAMPLE
+     # cd ~/kernel-debug
+     # rpm2cpio kernel-debuginfo-3.10.0-327.el7.x86_64.rpm | cpio -idmv
+     # rpm2cpio kernel-debuginfo-common-3.10.0-327.el7.x86_64.rpm | cpio -idmv
+     #+END_EXAMPLE
+     
+     This extracts the files within packages into the current working directory as
+     they would on the intended file system. No scripts or commands within the RPM
+     run. These files are not installed and the system package management tools will
+     not manage them.
 
-This extracts the files within packages into the current working directory as
-they would on the intended file system. No scripts or commands within the RPM
-run. These files are not installed and the system package management tools will
-not manage them.
+     This creates a vmlinux in ~/kernel-debug/usr/lib/debug/lib/modules/3.10.0-510.el7.x86_64/vmlinux
+     
+     The kernel source is in the directory:
+     ~/kernel-debug/usr/src/debug/kernel-3.10.0-327.el7/linux-3.10.0-327.el7.x86_64/
 
-This creates a vmlinux in ~/kernel-debug/usr/lib/debug/lib/modules/3.10.0-510.el7.x86_64/vmlinux
+**** Connecting to the target system from the remote system.
 
-The kernel source is in the directory:
-~/kernel-debug/usr/src/debug/kernel-3.10.0-327.el7/linux-3.10.0-327.el7.x86_64/
+     Start GDB with the text user interface with the parameter of the path to the
+     vmlinux/kernel running on the target system.
+     
+     #+BEGIN_EXAMPLE
+     # gdb -tui ~/kernel-debug/var/lib/kernel-3.10.0-327.el7/boot/vmlinux
+     #+END_EXAMPLE
+     <gdb prelude shows here>
+     
+     GDB must be told where to find the target system. Type the following (or
+     copy and paste !) it into the GDB session.
 
 
-***** Connecting to the target system from the remote system.
-
-Start GDB with the text user interface with the parameter of the path to the
-vmlinux/kernel running on the target system.
-
-#+BEGIN_EXAMPLE
-# gdb -tui ~/kernel-debug/var/lib/kernel-3.10.0-327.el7/boot/vmlinux
-#+END_EXAMPLE
-<gdb prelude shows here>
-
-GDB must be told where to find the target system. Type the following (or copy and paste !) it into the GDB session.
-
-#+BEGIN_EXAMPLE
-set architecture i386:x86-64:intel
-target remote localhost:1234
-dir ~/kernel-debug/usr/src/debug/kernel-3.10.0-327.el7/linux-3.10.0-327.el7.x86_64/
-#+END_EXAMPLE
-
-Commands entered at the (gdb) prompt can be saved in ~/.gdbinit to reduce repetitive entry.
-
-At this point if all goes well, the system should be connected to the remote
-GDB session, not all GDB commands will be available, but this should be a good
-starting point.
-
-       
+     #+BEGIN_EXAMPLE
+     set architecture i386:x86-64:intel
+     target remote localhost:1234
+     dir ~/kernel-debug/usr/src/debug/kernel-3.10.0-327.el7/linux-3.10.0-327.el7.x86_64/
+     #+END_EXAMPLE
+     
+     Commands entered at the (gdb) prompt can be saved in ~/.gdbinit to reduce repetitive entry.
+     
+     At this point if all goes well, the system should be connected to the remote
+     GDB session, not all GDB commands will be available, but this should be a good
+     starting point.
+      
 *** Kernel internals
 **** Memory models and the address space
 **** Device drivers
