@@ -19,12 +19,15 @@
 ** Hiding a kernel malicious module.
 
 
-* Project ideas
-** Build learning guide for infiltrate convention.
+* Documentation efforts.
+* The time I almost got training.
+** Day 0
 *** Introduction and reason:
 
     This is a learning preparedness series for my journey to infiltrate2018 for 
-    "master track: kernel exploitation"
+    "master track: kernel exploitation".  As work could neither justify my
+    attendence or give time off for me to go, this is for perhaps someone elses 
+    assistance.
 
     Here I will break down any resources and clarify my understanding in my own
     words to ensure that I document my understanding and that I am not wasting time
@@ -32,8 +35,6 @@
 
     I want to build practical examples that I can read and reference at a later
     date.
-
-    I want to keep this up to date.. 
 
     I've broken down the data from https://infiltratecon.com/schedule/ into the
     days that information is being presented, I want to do research into each of
@@ -45,7 +46,7 @@
       Draw from:
       http://badbytes.io/2017/02/15/exploit-dev-0x01-64-bit-linux-stack-buffer-overflow/
     
-**** Understanding a kernel stack trace.
+p**** Understanding a kernel stack trace.
 
       When you get a backtrace you may see something similar to the below:
 
@@ -339,7 +340,6 @@ Link to source code of sysfs generics.
     https://www.kernel.org/doc/Documentation/x86/x86_64/mm.txt
 
 ** Day +1 (Preparation)
-
 *** Setting up a kernel debugging environment
 ****  See example on this github.
      - https://gist.github.com/wmealing/24db20d60995a57ab5b8fc550378e54e 
@@ -347,6 +347,13 @@ Link to source code of sysfs generics.
        
 *** Kernel internals
 **** Memory models and the address space
+**** Device drivers
+
+     Check makefile in driver directory
+
+     obj-y lines are forced internals
+     obj-($CONFIG_SOMETHING) depends on the CONFIG_SOMETHING being set in the
+     kernels /usr/src/linux/.config 
 *** Flaw types
 **** Infoleak
      Reveals offsets and values of shit on stack.
@@ -355,7 +362,9 @@ Link to source code of sysfs generics.
 
 **** X86 calling conventions.
      Talk here about the stack what order of arguements in which bit 32/64 that 
-     args are passed int he stack
+     args are passed int he stack, probably link to wikipedia article here on
+     the current x86 calling conventions, and maybe find the arm one too.
+     
 **** Key structures in privesc
 ***** Task struct
 ***** Thread info struct
@@ -406,11 +415,8 @@ Link to source code of sysfs generics.
 
         LWN made a page on it https://lwn.net/Articles/517475/
 
-**** STACKSLA.... (grsec) 
-**** Struct alignment.
-     
+**** Struct alignment.     
 **** Hardening list ?
-
 **** Seccomp sandboxing
 **** address_limit checks
 
@@ -468,7 +474,6 @@ Link to source code of sysfs generics.
     * May be only logic bugs in the future
     - Verified/Trustworthy languages may make kernel exploitation harder.
     * Fortunately hardware manufacturers keep making unsafe hardware so ...
-
 
 ** Day +4 (Stuff that Doesn't fit )
 *** Rootkits
