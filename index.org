@@ -341,10 +341,9 @@ Link to source code of sysfs generics.
 ** Day +1 (Preparation)
 
 *** Setting up a kernel debugging environment
-****  My document on blogs.redhat.com 
+****  See example on this github.
      - https://gist.github.com/wmealing/24db20d60995a57ab5b8fc550378e54e 
      - Reproduca , pull down and put on github.
-      - Don't forget to show murray this tool.
        
 *** Kernel internals
 **** Memory models and the address space
@@ -355,13 +354,11 @@ Link to source code of sysfs generics.
      Changing the running priv of the current program.
 
 **** X86 calling conventions.
+     Talk here about the stack what order of arguements in which bit 32/64 that 
+     args are passed int he stack
 **** Key structures in privesc
 ***** Task struct
 ***** Thread info struct
-
-
-    From a process whats it look like
-
 
 *** Exploit stages
 **** Was reading a book about the 4 stages of exploitation, cover that here.
@@ -411,7 +408,7 @@ Link to source code of sysfs generics.
 
 **** STACKSLA.... (grsec) 
 **** Struct alignment.
-
+     
 **** Hardening list ?
 
 **** Seccomp sandboxing
@@ -422,6 +419,9 @@ Link to source code of sysfs generics.
      get_fs() and set_fs() set the thread_info's addr_limit which is checked
      when copying to and from userspace/kernel space, by tricking this out, 
      any application can have arbitrary read/write of kernel address space.
+
+**** Probable mitigations can be destroyed with rowhammer exploits or the newer
+     intel CPU flaws.
 
 ** Day +2 (Exploit toolchain)
 *** Abusing arbitrary read/write
@@ -453,6 +453,7 @@ Link to source code of sysfs generics.
     How do we abuse race conditions (show dirty cow ?)
 ** Day +3
 *** Logical and hardware related bugs
+**** CDROM infoleak ?
 *** Kernel and hardware protection
 
     - Reference capcom simple example, and make it.
@@ -461,24 +462,33 @@ Link to source code of sysfs generics.
 
 *** Bypassing protections
 
-    -> Show shellcode how to disable CR3.
-
+    -> Show shellcode how to disable CR3 (capcom_ko ?)
 
 *** The future of kernel vulnerabilties
-    - Only logic ? Damn kernel hardening efforts ? 
+    * May be only logic bugs in the future
+    - Verified/Trustworthy languages may make kernel exploitation harder.
+    * Fortunately hardware manufacturers keep making unsafe hardware so ...
+
 
 ** Day +4 (Stuff that Doesn't fit )
 *** Rootkits
     https://github.com/f0rb1dd3n/
 **** Tricks:
 ***** Finding Offset in structs.
-   
       In crash,(and maybe GDB, stolen from   https://youtu.be/UFakJa3t8Ls?t=2995)
    
       #+BEGIN_EXAMPLE
         x/x &((struct somestruct *)0x1000)->element
         0x1000 (Plus offset)
       #+END_EXAMPLE
+
+***** Skipping over instructions to simulate requirements.
+
+      #+BEGIN_EXAMPLE
+      so
+      #+END_EXAMPLE
+
+
 
 *** Basic commit creds example:
  
