@@ -341,7 +341,7 @@ Link to source code of sysfs generics.
 
 ** Day +1 (Preparation)
 *** Setting up a kernel debugging environment
-****  See example on this github.
+**** Setting up the kernel to be debugged.
 
      A kernel bug on oss-security list, claims to create a situation in which
      memory corruption can panic the system. An integer used in determining the
@@ -356,19 +356,18 @@ Link to source code of sysfs generics.
      This walkthrough assumes that the reader has a Red Hat Enterprise Linux 7
      guest and basic knowledge of C programming.
 
-     - Setting up the guest target to debug.
+*****  Setting up the guest target to debug.
 
      The guest to be the target of the debugging session is a libvirt (or
      KVM/QEMU) style guest. The guest virtual serial port should be mapped to
      the TCP port (TCP/1234) for use by the GDB .
 
-     * Modifying the guest domain file
+***** Modifying the guest domain file
 
      The virsh-edit command is intended to be a safe method of manipulating the
      raw XML which is what we need to do in this circumstance. We need to
      configure the guest via the domain configuration file as there are no
      tickbox to enable what we need in virt-manager.
-
 
      The first change is to set the xml namespace for QEMU, which sounds more complex than it is.
 
@@ -384,7 +383,9 @@ Link to source code of sysfs generics.
         xmlns:qemu='http://libvirt.org/schemas/domain/qemu/1.0' >
      #+END_EXAMPLE
 
-Add a new sub directive of "domain" which will allow us to pass a parameter to qemu for this guest when starting.
+     Add a new sub directive of "domain" which will allow us to pass a
+     parameter to qemu for this guest when starting.
+
 
 #+BEGIN_EXAMPLE
 <domain type='kvm'
@@ -421,39 +422,43 @@ tcp        0      0 0.0.0.0:1234            0.0.0.0:*               LISTEN      
 #+END_EXAMPLE
 
 
-Change /etc/default/grub
+***** Change /etc/default/grub
 
-The kernel will need to booted with new parameters to enable kgdb debugging facilities. Add the values kgdboc=ttyS0,115200. In the system shown here, a serial console is also running on ttyS0 with no adverse affects.
+      The kernel will need to booted with new parameters to enable kgdb debugging facilities. Add the values kgdboc=ttyS0,115200. In the system shown here, a serial console is also running on ttyS0 with no adverse affects.
 
-Use the helpful grubby to apply these changes across all kernels.
+      Use the helpful grubby to apply these changes across all kernels.
 
-#+BEGIN_EXAMPLE
-# grubby --update-kernel=ALL --args="console=ttyS0,115200 kgdboc=ttyS0,115200"
-#+END_EXAMPLE
-Downloading debuginfo packages.
+      #+BEGIN_EXAMPLE
+      # grubby --update-kernel=ALL --args="console=ttyS0,115200 kgdboc=ttyS0,115200"
+      #+END_EXAMPLE
 
-The Red Hat Enterprise Linux kernel packages do not include debug symbols, debug symbols are stripped from binary files at build time. Gdb uses debug symbols to assist programmers when debugging. For more information on debuginfo see this segment of the Red Hat Enteprise Linux 7 developer guide](https://access.redhat.com/documentation/en-US/Red_Hat_Enterprise_Linux/7/html/Developer_Guide/intro.debuginfo.html).
+*****  Downloading debuginfo packages.
 
-RPM packages containing the name 'debuginfo' contain files with symbols. These packages can be downloaded from Red hat using yum or up2date.
+    The Red Hat Enterprise Linux kernel packages do not include debug symbols, debug symbols are stripped from binary files at build time. Gdb uses debug symbols to assist programmers when debugging. For more information on debuginfo see this segment of the Red Hat Enteprise Linux 7 developer guide](https://access.redhat.com/documentation/en-US/Red_Hat_Enterprise_Linux/7/html/Developer_Guide/intro.debuginfo.html).
 
-To download these packages on the guest:
+    RPM packages containing the name 'debuginfo' contain files with symbols.
+    These packages can be downloaded from Red hat using yum or up2date.
 
-#+BEGIN_EXAMPLE
-# debuginfo-install --downloadonly kernel-3.10.0-327.el7
-#+END_EXAMPLE
+    To download these packages on the guest:
+
+    #+BEGIN_EXAMPLE
+    # debuginfo-install --downloadonly kernel-3.10.0-327.el7
+    #+END_EXAMPLE
 
 
 This should download two files in the current directory on the host for later extraction and use by gdb.
 
 Copy these files from the target to the host for use. I choose the ~/kernel-debug/ as a sane location for these files. Create the directory if it doesn't already exist.
 
-#+BEGIN_EXAMPLE
-# mkdir ~/kernel-debug
-# scp yourlogin@guest:kernel*.rpm kernel-debug/
-#+END_EXAMPLE
+    #+BEGIN_EXAMPLE
+    # mkdir ~/kernel-debug
+    # scp yourlogin@guest:kernel*.rpm kernel-debug/
+    #+END_EXAMPLE
 
-The final step on the guest is to reboot the target. At this point the system should reboot with no change in behavior.
-Preparing the host to debug
+    The final step on the guest is to reboot the target. At this point the
+    system should reboot with no change in behavior.
+
+*****   Preparing the host to debug
 
 The system which runs the debugger, doesn't need to be the host that contains the guest. The host must capable of making a connection to the system running on the specified port (1234). In this example these commands will be run on the host which contains the virtual machine.
 Installing gdb:
@@ -486,7 +491,7 @@ The kernel source is in the directory:
 ~/kernel-debug/usr/src/debug/kernel-3.10.0-327.el7/linux-3.10.0-327.el7.x86_64/
 
 
-Connecting to the target system from the remote system.
+***** Connecting to the target system from the remote system.
 
 Start GDB with the text user interface with the parameter of the path to the
 vmlinux/kernel running on the target system.
