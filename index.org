@@ -19,7 +19,6 @@
 ** Hiding a kernel malicious module.
 
 
-* Something else
+* Project ideas
 
-** Two deep
-*** Three deep.
+** Build learning guide for infiltrate convention.
