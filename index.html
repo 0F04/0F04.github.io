@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2018-06-04 Mon 16:36 -->
+<!-- 2018-06-04 Mon 16:41 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>EASY TALK</title>
@@ -242,18 +242,96 @@ for the JavaScript code in this tag.
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents">
 <ul>
-<li><a href="#org0f19e51">1. Kernel</a>
+<li><a href="#orgc660d21">1. Kernel</a>
 <ul>
-<li><a href="#orga4ed425">1.1. Hiding a kernel malicious module.</a></li>
+<li><a href="#orgfc5a57c">1.1. Hiding a kernel malicious module.</a></li>
 </ul>
 </li>
-<li><a href="#org2a1fd62">2. Something else</a>
+<li><a href="#orgf13347e">2. Project ideas</a>
 <ul>
-<li><a href="#org34848d7">2.1. Two deep</a>
+<li><a href="#orgf67187f">2.1. Build learning guide for infiltrate convention.</a>
 <ul>
-<li><a href="#orgba197cd">Three deep.</a></li>
+<li><a href="#orga9f6042">Introduction and reason:</a></li>
+<li><a href="#orge5fad0a">Day 0 (Background information)</a>
+<ul>
+<li><a href="#orge4ed4b7">How the stack works</a></li>
+<li><a href="#org84cf08b">Understanding a kernel stack trace.</a></li>
+<li><a href="#org3523d92">Userland vs kernel land.</a></li>
 </ul>
 </li>
+</ul>
+</li>
+<li><a href="#org65bcd73">2.2. Day +1 (Preparation)</a>
+<ul>
+<li><a href="#org5e3c1ee">Setting up a kernel debugging environment</a>
+<ul>
+<li><a href="#org116191d">My document on blogs.redhat.com</a></li>
+</ul>
+</li>
+<li><a href="#org3af7064">Kernel internals</a>
+<ul>
+<li><a href="#orgb8bcf48">Memory models and the address space</a></li>
+</ul>
+</li>
+<li><a href="#org4a0cc25">Flaw types</a>
+<ul>
+<li><a href="#orgeb8a666">Infoleak</a></li>
+<li><a href="#orga8e84f7">Privesc</a></li>
+<li><a href="#orgf2cf686">X86 calling conventions.</a></li>
+<li><a href="#org459af3d">Key structures in privesc</a></li>
+</ul>
+</li>
+<li><a href="#org04eb4d1">Exploit stages</a>
+<ul>
+<li><a href="#orgaa27180">Was reading a book about the 4 stages of exploitation, cover that here.</a></li>
+</ul>
+</li>
+<li><a href="#orgad1154e">Common C Exploit types</a></li>
+<li><a href="#org216ece2">Kernel Mitigations</a>
+<ul>
+<li><a href="#org8055775">Stack guard page.</a></li>
+<li><a href="#org0c1213b">SMEP</a></li>
+<li><a href="#org7897f1b">SMAP</a></li>
+<li><a href="#org10651fe">STACKSLA&#x2026;. (grsec)</a></li>
+<li><a href="#org076ebb9">Struct alignment.</a></li>
+<li><a href="#org0b9c574">Hardening list ?</a></li>
+<li><a href="#org2ad892f">Seccomp sandboxing</a></li>
+<li><a href="#org130d55d">address<sub>limit</sub> checks</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#org234d5e1">2.3. Day +2 (Exploit toolchain)</a>
+<ul>
+<li><a href="#org27b33a1">Abusing arbitrary read/write</a></li>
+<li><a href="#orgf21db8d">Abusing function pointers</a></li>
+<li><a href="#org1561392">Controlled memory 'corruption'</a>
+<ul>
+<li><a href="#orgb5bc8f3"><span class="todo TODO">TODO</span> create example of writing 'something' to a location, then spinning on</a></li>
+</ul>
+</li>
+<li><a href="#org79f4b07">Simple Race conditions</a></li>
+</ul>
+</li>
+<li><a href="#org45d8697">2.4. Day +3</a>
+<ul>
+<li><a href="#org83294df">Logical and hardware related bugs</a></li>
+<li><a href="#org0409839">Kernel and hardware protection</a></li>
+<li><a href="#org132f7e3">Bypassing protections</a></li>
+<li><a href="#org1db4666">The future of kernel vulnerabilties</a></li>
+</ul>
+</li>
+<li><a href="#org60c086f">2.5. Day +4 (Stuff that Doesn't fit )</a>
+<ul>
+<li><a href="#org7196c62">Rootkits</a>
+<ul>
+<li><a href="#org1e0591a">Tricks:</a></li>
+</ul>
+</li>
+<li><a href="#orgbf73feb">Basic commit creds example:</a></li>
+</ul>
+</li>
+<li><a href="#org90139ec">2.6. References / to sort.</a></li>
 </ul>
 </li>
 </ul>
@@ -261,33 +339,893 @@ for the JavaScript code in this tag.
 </div>
 
 
-<div id="outline-container-org0f19e51" class="outline-2">
-<h2 id="org0f19e51"><span class="section-number-2">1</span> Kernel</h2>
+<div id="outline-container-orgc660d21" class="outline-2">
+<h2 id="orgc660d21"><span class="section-number-2">1</span> Kernel</h2>
 <div class="outline-text-2" id="text-1">
 </div>
-<div id="outline-container-orga4ed425" class="outline-3">
-<h3 id="orga4ed425"><span class="section-number-3">1.1</span> Hiding a kernel malicious module.</h3>
+<div id="outline-container-orgfc5a57c" class="outline-3">
+<h3 id="orgfc5a57c"><span class="section-number-3">1.1</span> Hiding a kernel malicious module.</h3>
 </div>
 </div>
 
 
-<div id="outline-container-org2a1fd62" class="outline-2">
-<h2 id="org2a1fd62"><span class="section-number-2">2</span> Something else</h2>
+<div id="outline-container-orgf13347e" class="outline-2">
+<h2 id="orgf13347e"><span class="section-number-2">2</span> Project ideas</h2>
 <div class="outline-text-2" id="text-2">
 </div>
-<div id="outline-container-org34848d7" class="outline-3">
-<h3 id="org34848d7"><span class="section-number-3">2.1</span> Two deep</h3>
+<div id="outline-container-orgf67187f" class="outline-3">
+<h3 id="orgf67187f"><span class="section-number-3">2.1</span> Build learning guide for infiltrate convention.</h3>
 <div class="outline-text-3" id="text-2-1">
 </div>
-<div id="outline-container-orgba197cd" class="outline-4">
-<h4 id="orgba197cd">Three deep.</h4>
+<div id="outline-container-orga9f6042" class="outline-4">
+<h4 id="orga9f6042">Introduction and reason:</h4>
+<div class="outline-text-4" id="text-orga9f6042">
+<p>
+This is a learning preparedness series for my journey to infiltrate2018 for 
+"master track: kernel exploitation"
+</p>
+
+<p>
+Here I will break down any resources and clarify my understanding in my own
+words to ensure that I document my understanding and that I am not wasting time
+and money.
+</p>
+
+<p>
+I want to build practical examples that I can read and reference at a later
+date.
+</p>
+
+<p>
+I want to keep this up to date.. 
+</p>
+
+<p>
+I've broken down the data from <a href="https://infiltratecon.com/schedule/">https://infiltratecon.com/schedule/</a> into the
+days that information is being presented, I want to do research into each of
+the topics and make this as fruitful as possible.
+</p>
+</div>
+</div>
+
+<div id="outline-container-orge5fad0a" class="outline-4">
+<h4 id="orge5fad0a">Day 0 (Background information)</h4>
+<div class="outline-text-4" id="text-orge5fad0a">
+</div>
+<div id="outline-container-orge4ed4b7" class="outline-5">
+<h5 id="orge4ed4b7">How the stack works</h5>
+<div class="outline-text-5" id="text-orge4ed4b7">
+<p>
+Draw from:
+<a href="http://badbytes.io/2017/02/15/exploit-dev-0x01-64-bit-linux-stack-buffer-overflow/">http://badbytes.io/2017/02/15/exploit-dev-0x01-64-bit-linux-stack-buffer-overflow/</a>
+</p>
+</div>
+</div>
+
+<div id="outline-container-org84cf08b" class="outline-5">
+<h5 id="org84cf08b">Understanding a kernel stack trace.</h5>
+<div class="outline-text-5" id="text-org84cf08b">
+<p>
+When you get a backtrace you may see something similar to the below:
+</p>
+
+<pre class="example">
+[  509.617661] BUG: unable to handle kernel NULL pointer dereference at 0000000000000028
+
+                [&lt;ffffffffc0599a80&gt;] drbg_kcapi_reset+0x160/0x220 [drbg] 
+[  509.642461]  [&lt;ffffffff812eb867&gt;] rngapi_reset+0x57/0x80
+[  509.642461]  [&lt;ffffffffc05c400f&gt;] rng_setkey+0xf/0x20 [algif_rng]
+[  509.642461]  [&lt;ffffffff812ec131&gt;] alg_setsockopt+0x101/0x140
+[  509.642461]  [&lt;ffffffff8156b3a0&gt;] SyS_setsockopt+0x80/0xf0
+[  509.642461]  [&lt;ffffffff816b4fc9&gt;] system_call_fastpath+0x16/0x1b
+
+
+[  509.642461] RAX: 0000000000000010 RBX: ffff8800b37a3c00 RCX: 000000000000000a
+[  509.642461] RAX: 0000000000000010 RBX: ffff8800b37a3c00 RCX: 000000000000000a
+[  509.642461] RDX: 000000000000000a RSI: ffffffffc059b6f6 RDI: ffffffffc059dae2
+[  509.642461] RBP: ffff880137847ea8 R08: 0000000000000036 R09: 0000000000000000
+[  509.642461] R10: ffff88013fc19ba0 R11: ffffea00022ac900 R12: ffffffffc059dae2
+[  509.642461] R13: 000000000000000b R14: ffffffffc059b6f6 R15: 000000000000000a
+</pre>
+
+<p>
+Kernel stack traces read "bottom up", the most recently executing function is
+at the top, followed by the function that called that, followed by the function
+that called and so on.
+</p>
+
+<p>
+To break down a single line:
+</p>
+
+<pre class="example">
+Each line explained:
+
+                [&lt;ffffffffc0599a80&gt;] drbg_kcapi_reset+0x160/0x220 [drbg] 
+                 ^1                  ^2               ^3    ^4    ^5
+</pre>
+
+<p>
+Below, each element is explained:
+</p>
+
+<ol class="org-ol">
+<li>Physical location of memory where this is being run, should be kernel address space.</li>
+<li>Name of the function that the kernel "thinks" its in.</li>
+<li>Offset from the start of the function that the 'unwinder' could match.</li>
+<li>Length of the function that the 'unwinder' could match to.</li>
+<li>Optional, kernel module name.</li>
+</ol>
+
+<p>
+From the above we can see that the kernel paniced while in drbg<sub>kcapi</sub><sub>reset</sub> at
+offset 0x160 through the function..  We're going to show a method in this case
+to confirm that the stack trace is working how we assume it is.
+</p>
+
+<p>
+Examples within are in the intel assembly format because that is what I feel
+more comfortable with.
+</p>
+
+<p>
+Lets start by using objdump on the module to see the assembly instruction that
+the kernel paniced on:
+</p>
+
+<pre class="example">
+
+$ objdump -dSLR -M intel drbg.ko |grep drbg_kcapi_reset | grep -A 25 
+
+static int drbg_kcapi_reset(struct crypto_rng *tfm, u8 *seed, unsigned int slen)
+
+0000000000002920 
+
+ 2a5d:       41 83 ff 0b             cmp    r15d,0xb
+ 2a61:       75 dd                   jne    2a40 &lt;drbg_kcapi_reset+0x120&gt;
+ 2a63:       45 30 ff                xor    r15b,r15b
+ 2a66:       8b 45 98                mov    eax,DWORD PTR [rbp-0x68]
+ 2a69:       85 c0                   test   eax,eax
+ 2a6b:       0f 85 97 00 00 00       jne    2b08 &lt;drbg_kcapi_reset+0x1e8&gt;
+ 2a71:       48 83 7d a0 00          cmp    QWORD PTR [rbp-0x60],0x0
+ 2a76:       0f 84 a4 00 00 00       je     2b20 &lt;drbg_kcapi_reset+0x200&gt;
+ 2a7c:       48 8b 45 a0             mov    rax,QWORD PTR [rbp-0x60]
+ 2a80:       4c 8b 60 18             mov    r12,QWORD PTR [rax+0x18] &lt;&lt;== HERE
+ 2a84:       4d 85 e4                test   r12,r12                  
+ 2a87:       74 22                   je     2aab &lt;drbg_kcapi_reset+0x18b&gt;
+ 2a89:       49 83 3c 24 00          cmp    QWORD PTR [r12],0x0
+ 2a8e:       74 1b                   je     2aab &lt;drbg_kcapi_reset+0x18b&gt;
+ 2a90:       4c 8b 75 a8             mov    r14,QWORD PTR [rbp-0x58]
+
+</pre>
+
+<p>
+So to find the instruction it bugged on: 
+</p>
+
+<pre class="example">
+  0x2920 (function offset) 
++ 0x0160 (instruction offset)
+========
+  0x2a80
+========
+</pre>
+
+<p>
+We can see that this bugged on mov r12,QWORD PTR[rax+0x18]. This kind of
+instruction is usually used when looking up elements of a struct.
+</p>
+
+<p>
+We do notice however that the backtrace mentions 0x28, but the assembly
+instruction mentions 0x10, what gives.. well thats because the RAX 
+register contains 0x10 (See stack dump above).  RAX + 0x18, added together 
+giveth 0x28.
+</p>
+
+<p>
+Timesaver:
+</p>
+
+<p>
+If you ever need to do hex math you can use python 
+</p>
+
+<pre class="example">
+python
+&gt;&gt; hex (0x2920 + 0x160)
+0x2a80
+&gt;&gt; hex (0x18 + 0x1000)
+0x28
+</pre>
+
+<p>
+Fortunately, we have the source code, so we can use the previous in
+confirm what line was being bugged.
+</p>
+
+<p>
+The addr2line or "eu-addr2line" tool is able to translate the function+offset
+into a line number.   You may need to use your kernels "debug" modules or
+"debuginfo" modules to correctly determine the offset information as not all
+modules will have sufficient debugging symbols present to determine which line
+is being executed.  
+</p>
+
+<p>
+Shown below is the RHEL7 drbg.ko module from kernel-debuginfo.  It is important
+to run this against the matching kernel release or the line values will not
+match correctly.
+</p>
+
+
+<pre class="example">
+[wmealing@linux Downloads]$  eu-addr2line -f -e  ./usr/lib/debug/lib/modules/3.10.0-691.el7.x86_64/kernel/crypto/drbg.ko.debug 
+drbg_kcapi_reset+0x160
+drbg_kcapi_reset
+crypto/drbg.c:1741
+
+</pre>
+
+<p>
+We get a little closer, so lets take a look at that line:
+</p>
+
+<pre class="example">
+1722 static int drbg_kcapi_reset(struct crypto_rng *tfm, u8 *seed, unsigned int slen)
+1723 {
+1724         struct drbg_state *drbg = crypto_rng_ctx(tfm);
+1725         struct crypto_tfm *tfm_base = crypto_rng_tfm(tfm);
+1726         bool pr = false;
+1727         struct drbg_string seed_string;
+1728         int coreref = 0;
+1729 
+1730         drbg_uninstantiate(drbg);
+1731         drbg_convert_tfm_core(crypto_tfm_alg_driver_name(tfm_base), &amp;coreref,
+1732                               &amp;pr);
+1733         if (0 &lt; slen) {
+1734                 drbg_string_fill(&amp;seed_string, seed, slen);
+1735                 return drbg_instantiate(drbg, &amp;seed_string, coreref, pr);
+1736         } else {
+1737                 struct drbg_gen *data = (struct drbg_gen *)seed;
+1738                 /* allow invocation of API call with NULL, 0 */
+1739                 if (!data)
+1740                         return drbg_instantiate(drbg, NULL, coreref, pr);
+1741                 drbg_set_testdata(drbg, data-&gt;test_data); &lt;-- HERE
+1742                 /* linked list variable is now local to allow modification */
+1743                 drbg_string_fill(&amp;seed_string, data-&gt;addtl-&gt;buf,
+1744                                  data-&gt;addtl-&gt;len);
+1745                 return drbg_instantiate(drbg, &amp;seed_string, coreref, pr);
+1746         }
+1747 }
+</pre>
+
+<p>
+Because we can see that its trying to find the offset of a specific item (with
+rax+0x18 in the instruction) we can take a pretty good guess that its looking
+at data-&gt;test<sub>data</sub>.
+</p>
+
+<p>
+The drbg<sub>set</sub><sub>testdata</sub> function is an "inline" function.  This means that the
+kernel function will not include the usual "call" assembly instruction to
+execute the function, but instead will put the code that the function would
+execute directly in-place.
+</p>
+
+<p>
+Because of this, We can match the first instruction of the drbg<sub>set</sub><sub>testdata</sub>
+function with the next instruction of the dissasembly.
+</p>
+
+<p>
+This first instruction is a testing that the first arguent is "not null", this
+is acheived in assembly with the "test" instruction.  
+</p>
+
+<pre class="example" id="Test instruction.">
+test r12 r12
+</pre>
+
+<p>
+We can backtrack to the previous instruction and determine that the result was
+stored in R12 to see if we are likely in the correc tlocation
+</p>
+
+<pre class="example" id="pointer-dereference instruction.">
+2a80:       4c 8b 60 18             mov    r12,QWORD PTR [rax+0x18]
+</pre>
+
+<p>
+References:
+ <a href="https://stackoverflow.com/questions/6151538/addr2line-on-kernel-module">https://stackoverflow.com/questions/6151538/addr2line-on-kernel-module</a>
+</p>
+</div>
+</div>
+
+<div id="outline-container-org3523d92" class="outline-5">
+<h5 id="org3523d92">Userland vs kernel land.</h5>
+<div class="outline-text-5" id="text-org3523d92">
+</div>
+<ul class="org-ul">
+<li><a id="orgcf94794"></a>What is userspace:<br />
+<div class="outline-text-6" id="text-orgcf94794">
+<p>
+Userspace is an area of memory reserved for applications that run on behalf
+of users to execute.  It has a contiguous section of memory of a subsection of
+the full memory available
+</p>
+
+<p>
+mention pte&#x2026; abstraction.
+virtual address space uses page tables to look things up.
+</p>
+
+<ul class="org-ul">
+<li>syscalls explain context</li>
+<li>ioctls explain context</li>
+</ul>
+</div>
+</li>
+
+<li><a id="orge8e038b"></a>What is a syscall?<br />
+<div class="outline-text-6" id="text-orge8e038b">
+<p>
+A system call, sometimes referred to as a kernel call, is a request in a
+Unix-like operating system made via a software interrupt by an active 
+process for a service performed by the kernel.
+</p>
+
+<p>
+Link to any POSIX spec for syscalls or doc on syscalls ?
+</p>
+</div>
+</li>
+
+<li><a id="orgb7a1c88"></a>What is an ioctl ?<br />
+<div class="outline-text-6" id="text-orgb7a1c88">
+<p>
+An ioctl (an abbreviation of input/output control) is a system call for 
+device-specific input/output operations and other operations which cannot be
+expressed by regular system calls.  Usually these control hardware.
+</p>
+
+<p>
+Link to any discussion on deprecation of ioctls to other mechanisms.
+</p>
+
+<pre class="example">
+
+#include &lt;fcntl.h&gt;      /* open */ 
+#include &lt;unistd.h&gt;     /* exit */
+#include &lt;sys/ioctl.h&gt;  /* ioctl */
+
+#define DEVICE_FILE_NAME "/dev/something"
+#define IOCTL_GET_MSG 1
+
+/* Main - Call the ioctl functions */
+void main() {
+     int fd;
+     int ret_val;
+     char *msg = "Message passed by ioctl\n";
+
+     fd = open(DEVICE_FILE_NAME, 0);
+     if (file_desc &lt; 0) {
+
+         printf ("Can't open device file: %s\n",  DEVICE_FILE_NAME);
+
+         ret_val = ioctl(fd, IOCTL_GET_MSG, message);
+
+         if (ret_val &lt; 0)
+            printf("ioctl_get_msgfailed:%d\n",ret_val);
+
+     }
+}
+
+
+</pre>
+
+<p>
+The expectation is that the hardware kernel would relay the expectation that
+userspace has a request to fulfil and respond with the change or an error
+message regarding why the request could not be completed.
+</p>
+</div>
+</li>
+
+<li><a id="org4063f31"></a>What is sysfs/configfs ?<br />
+<div class="outline-text-6" id="text-org4063f31">
+<p>
+Link to source code of sysfs generics.
+</p>
+</div>
+</li>
+
+<li><a id="org98895b9"></a>What is <i>dev</i><br /></li>
+
+<li><a id="org4b517b5"></a>What is Netlink messages ?<br />
+<div class="outline-text-6" id="text-org4b517b5">
+<ul class="org-ul">
+<li>Limited subset of commands.</li>
+<li>Examples provided by me will be done in kernel modules loaded at run time.</li>
+
+<li>Find link to pedantism format required, but if you're doing evil best to
+just do it in whatever you're comfortable with.</li>
+</ul>
+
+<p>
+Netlink flaw:
+<a href="https://bugzilla.redhat.com/show_bug.cgi?id=CVE-2009-1185">https://bugzilla.redhat.com/show_bug.cgi?id=CVE-2009-1185</a> 
+</p>
+</div>
+</li>
+
+<li><a id="orgb3b01ae"></a>What is kernel space<br />
+<div class="outline-text-6" id="text-orgb3b01ae">
+<ul class="org-ul">
+<li>No floating point work done in kernel, those registers get smashed.</li>
+<li>no stdlibs from glibc.</li>
+<li><p>
+can't use userspace libraries, code, read/write et
+</p>
+
+<p>
+Full address space of the system.  Not directly accessible from userspace.
+Syscalls, ioctls, sysfs have indirect access to the the kernel through through
+their proxy style mechanism.
+</p>
+
+<p>
+No "protection" provided from kernel-&gt;kernel access, can't limit execution of
+kernel code.
+</p>
+
+<p>
+Kernel proxies all memory access of applications via page tables, 
+</p>
+
+<p>
+Linux kernel process memory map
+<a href="https://www.kernel.org/doc/Documentation/x86/x86_64/mm.txt">https://www.kernel.org/doc/Documentation/x86/x86_64/mm.txt</a>
+</p></li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org65bcd73" class="outline-3">
+<h3 id="org65bcd73"><span class="section-number-3">2.2</span> Day +1 (Preparation)</h3>
+<div class="outline-text-3" id="text-2-2">
+</div>
+<div id="outline-container-org5e3c1ee" class="outline-4">
+<h4 id="org5e3c1ee">Setting up a kernel debugging environment</h4>
+<div class="outline-text-4" id="text-org5e3c1ee">
+</div>
+<div id="outline-container-org116191d" class="outline-5">
+<h5 id="org116191d">My document on blogs.redhat.com</h5>
+<div class="outline-text-5" id="text-org116191d">
+<ul class="org-ul">
+<li><a href="https://gist.github.com/wmealing/24db20d60995a57ab5b8fc550378e54e">https://gist.github.com/wmealing/24db20d60995a57ab5b8fc550378e54e</a></li>
+<li>Reproduca , pull down and put on github.
+<ul class="org-ul">
+<li>Don't forget to show murray this tool.</li>
+</ul></li>
+</ul>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org3af7064" class="outline-4">
+<h4 id="org3af7064">Kernel internals</h4>
+<div class="outline-text-4" id="text-org3af7064">
+</div>
+<div id="outline-container-orgb8bcf48" class="outline-5">
+<h5 id="orgb8bcf48">Memory models and the address space</h5>
+</div>
+</div>
+<div id="outline-container-org4a0cc25" class="outline-4">
+<h4 id="org4a0cc25">Flaw types</h4>
+<div class="outline-text-4" id="text-org4a0cc25">
+</div>
+<div id="outline-container-orgeb8a666" class="outline-5">
+<h5 id="orgeb8a666">Infoleak</h5>
+<div class="outline-text-5" id="text-orgeb8a666">
+<p>
+Reveals offsets and values of shit on stack.
+</p>
+</div>
+</div>
+<div id="outline-container-orga8e84f7" class="outline-5">
+<h5 id="orga8e84f7">Privesc</h5>
+<div class="outline-text-5" id="text-orga8e84f7">
+<p>
+Changing the running priv of the current program.
+</p>
+</div>
+</div>
+
+<div id="outline-container-orgf2cf686" class="outline-5">
+<h5 id="orgf2cf686">X86 calling conventions.</h5>
+</div>
+<div id="outline-container-org459af3d" class="outline-5">
+<h5 id="org459af3d">Key structures in privesc</h5>
+<div class="outline-text-5" id="text-org459af3d">
+</div>
+<ul class="org-ul">
+<li><a id="org08fa7c1"></a>Task struct<br /></li>
+<li><a id="orgd635822"></a>Thread info struct<br />
+<div class="outline-text-6" id="text-orgd635822">
+<p>
+From a process whats it look like
+</p>
+</div>
+</li>
+</ul>
+</div>
+</div>
+
+
+<div id="outline-container-org04eb4d1" class="outline-4">
+<h4 id="org04eb4d1">Exploit stages</h4>
+<div class="outline-text-4" id="text-org04eb4d1">
+</div>
+<div id="outline-container-orgaa27180" class="outline-5">
+<h5 id="orgaa27180">Was reading a book about the 4 stages of exploitation, cover that here.</h5>
+<div class="outline-text-5" id="text-orgaa27180">
+</div>
+<ul class="org-ul">
+<li><a id="org869877c"></a>Stage 1: Setup/Initialization<br /></li>
+<li><a id="org36913c2"></a>Stage 2: <span class="underline"><span class="underline"><span class="underline">_</span></span></span><br /></li>
+<li><a id="org11dfd92"></a>Stage 3: Exploitation<br /></li>
+<li><a id="org3333432"></a>Stage 4: Recovery / Cleanup ?<br /></li>
+</ul>
+</div>
+</div>
+
+
+<div id="outline-container-orgad1154e" class="outline-4">
+<h4 id="orgad1154e">Common C Exploit types</h4>
+<div class="outline-text-4" id="text-orgad1154e">
+<ul class="org-ul">
+<li>Signedness issues
+<a href="https://en.wikibooks.org/wiki/X86_Assembly/Control_Flow#Jump_if_Above_.28unsigned_comparison.29">https://en.wikibooks.org/wiki/X86_Assembly/Control_Flow#Jump_if_Above_.28unsigned_comparison.29</a></li>
+<li>Integer overflow</li>
+<li>Type promotion in comparison.</li>
+<li>Overflowing into adjacent objects</li>
+<li>Off-by-[one/X]</li>
+<li>Use after free</li>
+<li>Stack corruption</li>
+<li>Heap Corruption</li>
+<li>Information leak
+Used to generate offsets to find task<sub>struct</sub> and set uid / gid to 0.</li>
+<li>OOB accesss ?</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-org216ece2" class="outline-4">
+<h4 id="org216ece2">Kernel Mitigations</h4>
+<div class="outline-text-4" id="text-org216ece2">
+<p>
+Describe each one of the kernel mitigatations.
+</p>
+</div>
+
+<div id="outline-container-org8055775" class="outline-5">
+<h5 id="org8055775">Stack guard page.</h5>
+</div>
+
+<div id="outline-container-org0c1213b" class="outline-5">
+<h5 id="org0c1213b">SMEP</h5>
+<div class="outline-text-5" id="text-org0c1213b">
+<p>
+Bypassing SMEP (Supervisor Mode Execution Protection)
+:- <a href="http://vulnfactory.org/blog/2011/06/05/smep-what-is-it-and-how-to-beat-it-on-linux/">http://vulnfactory.org/blog/2011/06/05/smep-what-is-it-and-how-to-beat-it-on-linux/</a>
+</p>
+</div>
+</div>
+
+<div id="outline-container-org7897f1b" class="outline-5">
+<h5 id="org7897f1b">SMAP</h5>
+<div class="outline-text-5" id="text-org7897f1b">
+<ul class="org-ul">
+<li><p>
+<a href="https://github.com/wmealing/playground/tree/master/kernel-module-disable-smep">https://github.com/wmealing/playground/tree/master/kernel-module-disable-smep</a>
+</p>
+
+<p>
+So, weird things, i think it gets re-enabled when copy<sub>to</sub><sub>user</sub> happens
+(frequently), so maybe i need to work this into some kind of shellcode
+that can be injected during the payload.  
+</p>
+
+<p>
+The other option is that i need to continually run this by hooking it
+into the re-enable code to ensure that it never gets disabled
+</p>
+
+<p>
+LWN made a page on it <a href="https://lwn.net/Articles/517475/">https://lwn.net/Articles/517475/</a>
+</p></li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-org10651fe" class="outline-5">
+<h5 id="org10651fe">STACKSLA&#x2026;. (grsec)</h5>
+</div>
+<div id="outline-container-org076ebb9" class="outline-5">
+<h5 id="org076ebb9">Struct alignment.</h5>
+</div>
+
+<div id="outline-container-org0b9c574" class="outline-5">
+<h5 id="org0b9c574">Hardening list ?</h5>
+</div>
+
+<div id="outline-container-org2ad892f" class="outline-5">
+<h5 id="org2ad892f">Seccomp sandboxing</h5>
+</div>
+<div id="outline-container-org130d55d" class="outline-5">
+<h5 id="org130d55d">address<sub>limit</sub> checks</h5>
+<div class="outline-text-5" id="text-org130d55d">
+<p>
+Vitaly talks about it here <a href="https://www.youtube.com/watch?v=UFakJa3t8Ls&amp;t=7s">https://www.youtube.com/watch?v=UFakJa3t8Ls&amp;t=7s</a>
+</p>
+
+<p>
+get<sub>fs</sub>() and set<sub>fs</sub>() set the thread<sub>info</sub>'s addr<sub>limit</sub> which is checked
+when copying to and from userspace/kernel space, by tricking this out, 
+any application can have arbitrary read/write of kernel address space.
+</p>
+</div>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org234d5e1" class="outline-3">
+<h3 id="org234d5e1"><span class="section-number-3">2.3</span> Day +2 (Exploit toolchain)</h3>
+<div class="outline-text-3" id="text-2-3">
+</div>
+<div id="outline-container-org27b33a1" class="outline-4">
+<h4 id="org27b33a1">Abusing arbitrary read/write</h4>
+<div class="outline-text-4" id="text-org27b33a1">
+<p>
+Show how infoleak + write can end up with a user discovering the location
+of the task struct (then creds) then setting effective uid and gid.
+</p>
+</div>
+
+<ul class="org-ul">
+<li><a id="org9c15a5d"></a><span class="todo TODO">TODO</span> Create github example module that allows for 1 byte read  and  write.<br /></li>
+</ul>
+</div>
+
+<div id="outline-container-orgf21db8d" class="outline-4">
+<h4 id="orgf21db8d">Abusing function pointers</h4>
+<div class="outline-text-4" id="text-orgf21db8d">
+<p>
+Show how abusing arbitary writes and then calling a function pointer
+to controlled code can control EIP.
+</p>
+
+<p>
+Mitigations will prevent this from happening.
+</p>
+</div>
+
+<ul class="org-ul">
+<li><a id="orge4cc588"></a><span class="todo TODO">TODO</span> create github example of module that allows for arb read/write and fn abuse.<br /></li>
+</ul>
+</div>
+
+<div id="outline-container-org1561392" class="outline-4">
+<h4 id="org1561392">Controlled memory 'corruption'</h4>
+<div class="outline-text-4" id="text-org1561392">
+<p>
+Sometimes only writes are not controlled, but corrupting,
+how do we take advantage of that
+</p>
+</div>
+
+<div id="outline-container-orgb5bc8f3" class="outline-5">
+<h5 id="orgb5bc8f3"><span class="todo TODO">TODO</span> create example of writing 'something' to a location, then spinning on</h5>
+<div class="outline-text-5" id="text-orgb5bc8f3">
+<p>
+it&#x2026; slab trashing ?
+</p>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org79f4b07" class="outline-4">
+<h4 id="org79f4b07">Simple Race conditions</h4>
+<div class="outline-text-4" id="text-org79f4b07">
+<p>
+How do we abuse race conditions (show dirty cow ?)
+</p>
+</div>
+</div>
+</div>
+<div id="outline-container-org45d8697" class="outline-3">
+<h3 id="org45d8697"><span class="section-number-3">2.4</span> Day +3</h3>
+<div class="outline-text-3" id="text-2-4">
+</div>
+<div id="outline-container-org83294df" class="outline-4">
+<h4 id="org83294df">Logical and hardware related bugs</h4>
+</div>
+<div id="outline-container-org0409839" class="outline-4">
+<h4 id="org0409839">Kernel and hardware protection</h4>
+<div class="outline-text-4" id="text-org0409839">
+<ul class="org-ul">
+<li>Reference capcom simple example, and make it.</li>
+<li>Show how to prepare example with protections disabled.</li>
+<li>smep, smap, nx, what happens when each of them are triggered.</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-org132f7e3" class="outline-4">
+<h4 id="org132f7e3">Bypassing protections</h4>
+<div class="outline-text-4" id="text-org132f7e3">
+<p>
+-&gt; Show shellcode how to disable CR3.
+</p>
+</div>
+</div>
+
+
+<div id="outline-container-org1db4666" class="outline-4">
+<h4 id="org1db4666">The future of kernel vulnerabilties</h4>
+<div class="outline-text-4" id="text-org1db4666">
+<ul class="org-ul">
+<li>Only logic ? Damn kernel hardening efforts ?</li>
+</ul>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org60c086f" class="outline-3">
+<h3 id="org60c086f"><span class="section-number-3">2.5</span> Day +4 (Stuff that Doesn't fit )</h3>
+<div class="outline-text-3" id="text-2-5">
+</div>
+<div id="outline-container-org7196c62" class="outline-4">
+<h4 id="org7196c62">Rootkits</h4>
+<div class="outline-text-4" id="text-org7196c62">
+<p>
+<a href="https://github.com/f0rb1dd3n/">https://github.com/f0rb1dd3n/</a>
+</p>
+</div>
+<div id="outline-container-org1e0591a" class="outline-5">
+<h5 id="org1e0591a">Tricks:</h5>
+<div class="outline-text-5" id="text-org1e0591a">
+</div>
+<ul class="org-ul">
+<li><a id="org340082b"></a>Finding Offset in structs.<br />
+<div class="outline-text-6" id="text-org340082b">
+<p>
+In crash,(and maybe GDB, stolen from   <a href="https://youtu.be/UFakJa3t8Ls?t=2995">https://youtu.be/UFakJa3t8Ls?t=2995</a>)
+</p>
+
+<pre class="example">
+x/x &amp;((struct somestruct *)0x1000)-&gt;element
+0x1000 (Plus offset)
+</pre>
+</div>
+</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-orgbf73feb" class="outline-4">
+<h4 id="orgbf73feb">Basic commit creds example:</h4>
+<div class="outline-text-4" id="text-orgbf73feb">
+<p>
+Privilege escalation
+</p>
+<pre class="example">
+TODO: basic example for commit_creds(prepare_kernel_cred)
+
+</pre>
+
+<p>
+Privilege escalation heuristics
+</p>
+<pre class="example">
+Dont know
+
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org90139ec" class="outline-3">
+<h3 id="org90139ec"><span class="section-number-3">2.6</span> References / to sort.</h3>
+<div class="outline-text-3" id="text-2-6">
+<ul class="org-ul">
+<li>android kernel exploitation playground
+:-  <a href="https://github.com/Fuzion24/AndroidKernelExploitationPlayground">https://github.com/Fuzion24/AndroidKernelExploitationPlayground</a></li>
+
+<li>Great link on linux kernel exploitation 
+:-  <a href="https://github.com/xairy/linux-kernel-exploitation">https://github.com/xairy/linux-kernel-exploitation</a></li>
+
+<li>Vitaly's presentation on exploit generation stuff.
+:- <a href="https://www.youtube.com/watch?v=UFakJa3t8Ls&amp;t=7s">https://www.youtube.com/watch?v=UFakJa3t8Ls&amp;t=7s</a></li>
+
+<li>- Simple exploit 
+:- ret2usr - <a href="https://github.com/vnik5287/kernel_rop/">https://github.com/vnik5287/kernel_rop/</a>
+:- The advanced return-into-lib(c) exploits: PaX case study ( <a href="http://phrack.org/archives/issues/58/4.txt">http://phrack.org/archives/issues/58/4.txt</a> )</li>
+
+<li>- Introduction to ret2usr attacks
+:- <a href="https://cyseclabs.com/slides/smep_bypass.pdf">https://cyseclabs.com/slides/smep_bypass.pdf</a></li>
+
+<li>- Exploiting kernel heap and stack vulnerabilities
+:- <a href="https://cyseclabs.com/blog/cve-2016-6187-heap-off-by-one-exploit">https://cyseclabs.com/blog/cve-2016-6187-heap-off-by-one-exploit</a></li>
+
+<li>- Reliable exploitation of use-after-free (UAF) vulnerabilities
+:- <a href="http://perception-point.io/2016/01/14/analysis-and-exploitation-of-a-linux-kernel-vulnerability-cve-2016-0728/">http://perception-point.io/2016/01/14/analysis-and-exploitation-of-a-linux-kernel-vulnerability-cve-2016-0728/</a>
+:- <a href="https://cyseclabs.com/page?n=02012016">https://cyseclabs.com/page?n=02012016</a></li>
+
+<li>Reliable UAF exploitation on SMP systems
+:- dont know how to do this, other than userfault fd maybe ?</li>
+
+<li>Why and Introduction to ret2dir attacks
+:- <a href="https://www.blackhat.com/docs/eu-14/materials/eu-14-Kemerlis-Ret2dir-Deconstructing-Kernel-Isolation-wp.pdf">https://www.blackhat.com/docs/eu-14/materials/eu-14-Kemerlis-Ret2dir-Deconstructing-Kernel-Isolation-wp.pdf</a>
+:- <a href="https://www.youtube.com/watch?v=kot-EQ9zf9k">https://www.youtube.com/watch?v=kot-EQ9zf9k</a></li>
+
+<li>Introduction to ROP
+:- <a href="https://www.trustwave.com/Resources/SpiderLabs-Blog/Linux-Kernel-ROP---Ropping-your-way-to">https://www.trustwave.com/Resources/SpiderLabs-Blog/Linux-Kernel-ROP---Ropping-your-way-to</a>&#x2014;(Part-1)/
+:- <a href="https://www.trustwave.com/Resources/SpiderLabs-Blog/Linux-Kernel-ROP---Ropping-your-way-to">https://www.trustwave.com/Resources/SpiderLabs-Blog/Linux-Kernel-ROP---Ropping-your-way-to</a>&#x2014;(Part-2)/
+:- 64-bit Linux Return-Oriented Programming ( <a href="http://crypto.stanford.edu/~blynn/rop/">http://crypto.stanford.edu/~blynn/rop/</a> )</li>
+
+<li>Bypassing SMEP (Supervisor Mode Execution Protection)
+:- <a href="http://vulnfactory.org/blog/2011/06/05/smep-what-is-it-and-how-to-beat-it-on-linux/">http://vulnfactory.org/blog/2011/06/05/smep-what-is-it-and-how-to-beat-it-on-linux/</a></li>
+
+<li>IDT (Interrupt Descriptor Table) overwrites
+:- Is this still a thing ? <a href="http://phrack.org/issues/59/4.html">http://phrack.org/issues/59/4.html</a></li>
+</ul>
+
+
+<p>
+(TO ADD/SORT)
+</p>
+
+<p>
+Linux Kernel Heap Tampering Detection ( <a href="http://phrack.org/archives/issues/66/15.txt">http://phrack.org/archives/issues/66/15.txt</a> )
+Automatic Bug-finding Techniques for Linux Kernel ( <a href="http://www.fi.muni.cz/~xslaby/sklad/teze.pdf">http://www.fi.muni.cz/~xslaby/sklad/teze.pdf</a> )
+Vulnerability Extrapolation: Assisted Discovery of Vulnerabilities Using Machine Learning ( <a href="https://www.usenix.org/legacy/events/woot11/tech/final_files/Yamaguchi.pdf">https://www.usenix.org/legacy/events/woot11/tech/final_files/Yamaguchi.pdf</a> )
+Offset2lib: bypassing full ASLR on 64bit Linux ( <a href="http://cybersecurity.upv.es/attacks/offset2lib/offset2lib.html">http://cybersecurity.upv.es/attacks/offset2lib/offset2lib.html</a> )
+Defeating Solar Designer’s Non-executable Stack Patch Summary ( <a href="http://insecure.org/sploits/non-executable.stack.problems.html">http://insecure.org/sploits/non-executable.stack.problems.html</a> )
+Introduction to return oriented programming (ROP) ( <a href="http://codearcana.com/posts/2013/05/28/introduction-to-return-oriented-programming-rop.html">http://codearcana.com/posts/2013/05/28/introduction-to-return-oriented-programming-rop.html</a> )
+</p>
+
+<ul class="org-ul">
+<li>Need to know:
+<a href="http://stackoverflow.com/questions/2535989/what-are-the-calling-conventions-for-unix-linux-system-calls-on-x86-64">http://stackoverflow.com/questions/2535989/what-are-the-calling-conventions-for-unix-linux-system-calls-on-x86-64</a>
+Intel® 64 and IA-32 Architectures Software Developer Manuals ( <a href="http://www.intel.com/content/www/us/en/processors/architectures-software-developer-manuals.html">http://www.intel.com/content/www/us/en/processors/architectures-software-developer-manuals.html</a> )</li>
+</ul>
+
+<p>
+– Module debugging
+</p>
+<pre class="example">
+loading a module in gdb ( https://github.com/vnik5287/kernel_rop/ )
+stepping through  / breakpoints
+
+</pre>
+
+<ul class="org-ul">
+<li>Vitals talk on youtube. need to watch that again.</li>
+</ul>
 </div>
 </div>
 </div>
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: 0F04</p>
-<p class="date">Created: 2018-06-04 Mon 16:36</p>
+<p class="date">Created: 2018-06-04 Mon 16:41</p>
 <p class="validation"><a href="http://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>
