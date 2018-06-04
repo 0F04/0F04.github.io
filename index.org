@@ -4,8 +4,7 @@
 #+AUTHOR:    0F04
 #+DESCRIPTION: THINGS I WANNA TALK ABOUT
 #+LANGUAGE:  en
-#+OPTIONS:   H:4 toc:t num:2
-
+#+OPTIONS:   H:4 toc:t num:2 ^:nil
 
 #+HTML_HEAD: <link rel="stylesheet" type="text/css" href="https://www.pirilampo.org/styles/readtheorg/css/htmlize.css"/>
 #+HTML_HEAD: <link rel="stylesheet" type="text/css" href="https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css"/>
