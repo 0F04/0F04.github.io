@@ -19,7 +19,7 @@
 ** Hiding a kernel malicious module.
 
 
-* Documentation efforts.
+
 * The time I almost got training.
 ** Day 0
 *** Introduction and reason:
@@ -171,7 +171,7 @@
    
    
      #+BEGIN_EXAMPLE
-     [wmealing@linux Downloads]$  eu-addr2line -f -e  ./usr/lib/debug/lib/modules/3.10.0-691.el7.x86_64/kernel/crypto/drbg.ko.debug 
+     [username@linux Downloads]$  eu-addr2line -f -e  ./usr/lib/debug/lib/modules/3.10.0-691.el7.x86_64/kernel/crypto/drbg.ko.debug 
      drbg_kcapi_reset+0x160
      drbg_kcapi_reset
      crypto/drbg.c:1741
@@ -259,7 +259,18 @@
       Unix-like operating system made via a software interrupt by an active 
       process for a service performed by the kernel.
 
+      Glibc wraps syscalls into more user-friendly values, not always how you
+      would think, there is vdso's as well.
+
+      
       Link to any POSIX spec for syscalls or doc on syscalls ?
+
+      TODO insert raw syscall example.
+
+      References:
+      - http://man7.org/linux/man-pages/man2/syscall.2.html
+      - http://man7.org/linux/man-pages/man7/vdso.7.html
+
 
 ***** What is an ioctl ?
 
@@ -297,16 +308,19 @@
            }
       }
      
-
 #+END_EXAMPLE
 
-The expectation is that the hardware kernel would relay the expectation that
-userspace has a request to fulfil and respond with the change or an error
-message regarding why the request could not be completed.
+      The expectation is that the hardware kernel would relay the expectation
+      that  userspace has a request to fulfil and respond with the change or an
+      error message regarding why the request could not be completed.
+
 
 ***** What is sysfs/configfs ?
 
-Link to source code of sysfs generics.
+      Link to source code of sysfs generics.
+
+***** What is debugfs
+      
 
 ***** What is /dev/
 
@@ -575,7 +589,6 @@ starting point.
       :- http://vulnfactory.org/blog/2011/06/05/smep-what-is-it-and-how-to-beat-it-on-linux/
 
 **** SMAP
-      - https://github.com/wmealing/playground/tree/master/kernel-module-disable-smep
 
         So, weird things, i think it gets re-enabled when copy_to_user happens
         (frequently), so maybe i need to work this into some kind of shellcode
@@ -737,4 +750,10 @@ starting point.
 
   - Vitals talk on youtube. need to watch that again.
    
+
+
+* Future plans
+*** Continue filling out the training module.
+*** Twitch stream maybe.
+*** Attend training somewhere..
 
